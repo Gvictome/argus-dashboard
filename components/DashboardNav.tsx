@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/dashboard/live", label: "Live feed" },
   { href: "/dashboard/alerts", label: "Alerts" },
   { href: "/dashboard/thermal", label: "Thermal" },
+  { href: "/dashboard/nodes", label: "All nodes" },
 ] as const;
 
 export function DashboardNav({

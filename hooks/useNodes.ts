@@ -37,16 +37,19 @@ export function useNodes() {
    * opened against the old node, so a full reload is the one switch that
    * cannot leave a stale stream or socket behind.
    */
-  const select = useCallback(async (id: string) => {
+  const select = useCallback(async (id: string, nextPath?: string) => {
     setSwitching(true);
-    const res = await fetch("/api/nodes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    if (res.ok) {
-      window.location.reload();
-    } else {
+    try {
+      const res = await fetch("/api/nodes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      // A full page load either way, so nothing stays open on the old node.
+      if (nextPath) window.location.assign(nextPath);
+      else window.location.reload();
+    } catch {
       setSwitching(false);
     }
   }, []);

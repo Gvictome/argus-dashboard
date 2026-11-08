@@ -188,3 +188,12 @@ export function eventClipUrl(id: number): string {
 export function thermalCsvUrl(minutes: number): string {
   return `${PROXY_BASE}/system/thermal.csv?minutes=${minutes}`;
 }
+
+/**
+ * A camera still from one specific node, by its ARGUS_NODES id, for the
+ * "All nodes" grid (app/api/nodes/[id]/snapshot). Not tied to the
+ * selected node the way the /api/argus URLs above are.
+ */
+export function nodeSnapshotUrl(nodeId: string, cacheBust: number): string {
+  return `/api/nodes/${encodeURIComponent(nodeId)}/snapshot?t=${cacheBust}`;
+}

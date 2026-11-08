@@ -1,8 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { AUTH_COOKIE_NAME } from "@/lib/config";
 import { selectedNode } from "@/lib/selectedNode";
+import { sessionToken } from "@/lib/session";
 
 // Server-side proxy to the ARGUS node's API.
 //
@@ -36,10 +35,6 @@ const POST_ALLOWED = [/^events\/\d+\/label$/];
 // The MJPEG stream is an open-ended response; nothing here may be cached
 // or buffered into a static payload.
 export const dynamic = "force-dynamic";
-
-async function bearer(): Promise<string | null> {
-  return (await cookies()).get(AUTH_COOKIE_NAME)?.value ?? null;
-}
 
 function unauthorized() {
   return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -94,7 +89,7 @@ export async function GET(
     return forbidden(suffix);
   }
 
-  const token = await bearer();
+  const token = await sessionToken();
   if (!token) return unauthorized();
 
   const query = request.nextUrl.search;
@@ -127,7 +122,7 @@ export async function POST(
     return forbidden(suffix);
   }
 
-  const token = await bearer();
+  const token = await sessionToken();
   if (!token) return unauthorized();
 
   const body = await request.text();

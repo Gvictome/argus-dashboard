@@ -48,6 +48,16 @@ Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4
   socket that never opens or dies falls back to polling `/api/events`
   every 5s. The mode badge says which is in effect — "live push" is
   never shown for a poll.
+- **Nodes** — a tab bar in the nav (A, B, C, ...) picks which node every
+  page shows. **All nodes** (`/dashboard/nodes`) shows every node from
+  `ARGUS_NODES` at once: a camera still refreshed every 3 s when the
+  node's camera is running, and its status (online/offline, FPS,
+  backend, model, sample count) either way. Offline and camera-less
+  nodes get their own card. Data comes from `GET /api/nodes/overview`
+  (each node's `/api/status` + `/api/camera/status`, asked in parallel
+  server-side with a 2.5 s timeout) and `GET /api/nodes/{id}/snapshot`.
+  Stills, not one MJPEG stream per card: browsers allow ~6 open
+  connections per origin, which a grid of streams would use up.
 - **Authenticated proxy** (`app/api/argus/[...path]/route.ts`) — the JWT
   is an HttpOnly cookie on the *dashboard's* origin, so a client-side
   fetch to the node can't carry it, and every real route sits behind
@@ -93,7 +103,7 @@ mock backend.
 | Variable | Default | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8000` | Where the FastAPI backend (real or mock) lives. |
-| `ARGUS_NODES` | unset | Nodes for the nav's node picker, `Name=URL` comma separated (e.g. `Node A=http://10.0.0.140:8000,Node B=http://10.0.0.128:8000`). Server-side only: the proxy reaches a node by its id in this list, never a URL from the browser. Unset = one node at `NEXT_PUBLIC_API_BASE_URL`. |
+| `ARGUS_NODES` | unset | Every node for the nav's tab bar and the All nodes page, `Name=URL` comma separated (e.g. `Node A=http://10.0.0.140:8000,Node B=http://10.0.0.127:8000`). Adding a node is appending one `,Name=URL` and restarting the dev server. Server-side only: the proxy reaches a node by its id in this list, never a URL from the browser. Unset = one node at `NEXT_PUBLIC_API_BASE_URL`. |
 | `NEXT_PUBLIC_WS_EVENTS_URL` | derived from the above | Override if the WS endpoint lives somewhere else. |
 | `AUTH_COOKIE_SECURE` | `false` | Set to `true` only once the device serves HTTPS. See the comment in `lib/config.ts` — this is a deliberate LAN-vs-TLS decision, not a build-mode side effect. |
 
