@@ -47,7 +47,7 @@ export function EventDetailPanel({
         <Row label="Time" value={formatTimestamp(event.ts)} />
         <Row label="Confidence" value={`${event.confidence}%`} />
         <Row label="Status" value={event.status} />
-        <Row label="Confirmed" value={event.confirmed ? "yes" : "no"} />
+        <Row label="Confirmed unusual"value={event.confirmed ? "yes" : "no"} />
       </dl>
 
       {/* Keyed on event.id so the correcting/error state resets cleanly
