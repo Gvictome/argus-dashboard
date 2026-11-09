@@ -5,7 +5,7 @@
 // multipart/x-mixed-replace MJPEG response, not an asset to optimize,
 // and the optimizer would try to fetch and resize it once.
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { liveStreamUrl } from "@/lib/api";
 import { StatusDot } from "./StatusDot";
 
@@ -16,6 +16,29 @@ export function LiveFeed() {
   // Bumping this remounts the <img>, which is the only reliable way to
   // reopen an MJPEG connection the browser has already given up on.
   const [attempt, setAttempt] = useState(0);
+  // A fresh URL per mount: the live page unmounts this while an event is
+  // open, and the browser's in-document image cache would otherwise hand
+  // back the last frame for the old URL instead of opening a new stream.
+  const [session] = useState(() => Date.now());
+  const streamUrl = `${liveStreamUrl()}?r=${session}-${attempt}`;
+
+  // src is set here rather than in JSX so it can be taken away again.
+  // Removing an <img> from the page does not reliably close its MJPEG
+  // connection; the browser can keep reading the multipart response until
+  // the element is collected. Dropping src aborts the request now, which
+  // the proxy passes on to the node (request.signal), so the camera stream
+  // really stops while the live page shows an event instead. Setting it on
+  // attach (not only in JSX) also survives StrictMode's detach/re-attach.
+  const attachStream = useCallback(
+    (img: HTMLImageElement | null) => {
+      if (!img) return;
+      img.src = streamUrl;
+      return () => {
+        img.removeAttribute("src");
+      };
+    },
+    [streamUrl],
+  );
 
   function retry() {
     setState("loading");
@@ -42,11 +65,14 @@ export function LiveFeed() {
           {state !== "error" && (
             <img
               key={attempt}
-              src={`${liveStreamUrl()}?r=${attempt}`}
+              ref={attachStream}
               alt="Live camera feed from the ARGUS node"
               className="h-full w-full object-contain"
               onLoad={() => setState("streaming")}
-              onError={() => setState("error")}
+              onError={(e) => {
+                // Dropping src on unmount is not a stream failure.
+                if (e.currentTarget.hasAttribute("src")) setState("error");
+              }}
             />
           )}
         </div>

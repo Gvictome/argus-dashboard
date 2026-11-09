@@ -1,19 +1,16 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-// Plain <img> for the event still: it is proxied from the node with the
-// session token, not a static asset the image optimizer can fetch.
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useEventFeed } from "@/hooks/useEventFeed";
-import { eventClipUrl, eventSnapshotUrl, type DetectionEvent } from "@/lib/api";
+import type { DetectionEvent } from "@/lib/api";
 import { DashboardNav } from "@/components/DashboardNav";
 import { FeedModeBadge } from "@/components/FeedModeBadge";
 import { EventList } from "@/components/EventList";
 import { EventDetailPanel } from "@/components/EventDetailPanel";
+import { EventMedia } from "@/components/EventMedia";
 
 // Only what the node flagged. `status: "stranger"` is the head's anomaly
 // call — "unusual for this site" — so this page is the alert feed the
@@ -123,58 +120,12 @@ export default function AlertsPage() {
         </div>
 
         <div className="flex min-h-[420px] flex-col gap-4">
-          {selectedEvent && <AlertSnapshot event={selectedEvent} />}
+          {selectedEvent && (
+            <EventMedia key={selectedEvent.id} event={selectedEvent} />
+          )}
           <EventDetailPanel event={selectedEvent} onLabel={applyLabel} />
         </div>
       </div>
-    </div>
-  );
-}
-
-/**
- * The clip the node kept for this event, or its still when there is no
- * clip. Only priority-1 events get footage; the still is the poster.
- */
-function AlertSnapshot({ event }: { event: DetectionEvent }) {
-  const [failed, setFailed] = useState(false);
-  const [clipFailed, setClipFailed] = useState(false);
-
-  // Keyed by the caller on nothing — reset when the event changes.
-  useEffect(() => {
-    setFailed(false);
-    setClipFailed(false);
-  }, [event.id]);
-
-  if (event.clip && !clipFailed) {
-    return (
-      <div className="overflow-hidden rounded border border-border bg-black">
-        <video
-          key={event.id}
-          src={eventClipUrl(event.id)}
-          poster={eventSnapshotUrl(event.id)}
-          controls
-          playsInline
-          preload="metadata"
-          className="aspect-video w-full object-contain"
-          onError={() => setClipFailed(true)}
-        />
-        <p className="border-t border-border px-4 py-2 font-mono text-[11px] tracking-widest text-danger uppercase">
-          Priority 1 · clip
-        </p>
-      </div>
-    );
-  }
-
-  if (failed) return null;
-
-  return (
-    <div className="overflow-hidden rounded border border-border bg-black">
-      <img
-        src={eventSnapshotUrl(event.id)}
-        alt={`Still captured for event ${event.id}`}
-        className="aspect-video w-full object-contain"
-        onError={() => setFailed(true)}
-      />
     </div>
   );
 }
