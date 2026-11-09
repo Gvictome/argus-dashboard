@@ -9,6 +9,14 @@ import { nodeSnapshotUrl } from "@/lib/api";
 import type { NodeSummary } from "@/lib/nodeSummary";
 import { StatusDot } from "./StatusDot";
 
+/** How the dashboard server is signed in to the node, in words. */
+const AUTH_NOTE: Record<NodeSummary["auth"], { text: string; bad: boolean }> = {
+  "signed-in": { text: "signed in", bad: false },
+  open: { text: "no sign-in needed", bad: false },
+  rejected: { text: "sign-in rejected", bad: true },
+  unreachable: { text: "not signed in", bad: false },
+};
+
 const CAMERA_NOTE = {
   off: "Camera not running on this node",
   none: "No camera on this node",
@@ -41,7 +49,19 @@ export function NodeCard({
             {node.name}
             {isSelected && <span className="ml-2 text-[10px] text-accent">viewing</span>}
           </p>
-          <p className="truncate font-mono text-[10px] text-muted">{node.url}</p>
+          <p className="truncate font-mono text-[10px] text-muted">
+            {node.nodeName !== node.name && <span>{node.nodeName} · </span>}
+            {node.url}
+          </p>
+          {node.online && (
+            <p
+              className={`truncate font-mono text-[10px] uppercase tracking-wider ${
+                AUTH_NOTE[node.auth].bad ? "text-danger" : "text-muted"
+              }`}
+            >
+              {AUTH_NOTE[node.auth].text}
+            </p>
+          )}
         </div>
         <span
           className={`flex shrink-0 items-center gap-2 font-mono text-[11px] uppercase ${

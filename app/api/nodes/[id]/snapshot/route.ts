@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { configuredNodes } from "@/lib/nodes";
-import { sessionToken } from "@/lib/session";
+import { nodeFetch } from "@/lib/nodeAuth";
 
 // One camera still from a specific node, for the "All nodes" grid. The
 // grid polls stills rather than opening one MJPEG stream per node: each
@@ -9,7 +9,8 @@ import { sessionToken } from "@/lib/session";
 // only ~6 per origin, so four streams plus polling would stall the page.
 //
 // Like /api/argus, the node is an id into ARGUS_NODES, never a URL from
-// the browser, and the only upstream path reachable is the snapshot.
+// the browser, and the only upstream path reachable is the snapshot. The node's token is
+// attached server-side by lib/nodeAuth.ts.
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +20,6 @@ export async function GET(
   _request: NextRequest,
   ctx: RouteContext<"/api/nodes/[id]/snapshot">,
 ) {
-  const token = await sessionToken();
-  if (!token) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
   const { id } = await ctx.params;
   const node = configuredNodes().find((candidate) => candidate.id === id);
   if (!node) {
@@ -31,10 +27,8 @@ export async function GET(
   }
 
   try {
-    const upstream = await fetch(`${node.baseUrl}/api/camera/snapshot`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const upstream = await nodeFetch(node, "/api/camera/snapshot", {
       signal: AbortSignal.timeout(SNAPSHOT_TIMEOUT_MS),
-      cache: "no-store",
     });
     return new NextResponse(upstream.body, {
       status: upstream.status,

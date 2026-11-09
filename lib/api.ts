@@ -4,8 +4,8 @@ import { WS_EVENTS_URL } from "./config";
 // Mohammed's backend once it exists for real.
 //
 // Calls go to /api/argus/* on this origin, not straight to the backend:
-// the JWT is an HttpOnly cookie here, so only a server-side hop can
-// attach it (see app/api/argus/[...path]/route.ts). Paths below are the
+// node tokens live only on the dashboard server, which attaches them
+// (see app/api/argus/[...path]/route.ts and lib/nodeAuth.ts). Paths below are the
 // backend's own, minus the /api prefix the proxy re-adds.
 const PROXY_BASE = "/api/argus";
 

@@ -1,3 +1,4 @@
+import { nodeAuth, nodeFetch, type NodeAuthState } from "@/lib/nodeAuth";
 import type { NodeConfig } from "@/lib/nodes";
 
 // One node's health for the "All nodes" overview, built server-side from
@@ -23,7 +24,12 @@ export interface NodeSamples {
 
 export interface NodeSummary {
   id: string;
+  /** Display label ("Camera 2"). */
   name: string;
+  /** The node's name in ARGUS_NODES ("Node B"). */
+  nodeName: string;
+  /** How the dashboard server is signed in to this node. */
+  auth: NodeAuthState;
   /** Shown on the card so a wrong or placeholder address is obvious. */
   url: string;
   online: boolean;
@@ -77,12 +83,10 @@ interface Fetched {
   failure: string | null;
 }
 
-async function getJson(url: string, token: string | null): Promise<Fetched> {
+async function getJson(node: NodeConfig, path: string): Promise<Fetched> {
   try {
-    const res = await fetch(url, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    const res = await nodeFetch(node, path, {
       signal: AbortSignal.timeout(NODE_TIMEOUT_MS),
-      cache: "no-store",
     });
     const body = res.ok ? asObject(await res.json().catch(() => null)) : null;
     return { res, body, failure: null };
@@ -92,22 +96,32 @@ async function getJson(url: string, token: string | null): Promise<Fetched> {
   }
 }
 
-function statusError(status: Fetched): string | null {
+function statusError(status: Fetched, authDetail: string | null): string | null {
   if (status.failure) return `No answer (${status.failure})`;
-  if (status.res?.status === 401) return "Online, but this node wants its own sign-in";
+  if (status.res?.status === 401) {
+    return authDetail ?? "Online, but the node refused the dashboard's token";
+  }
   if (!status.res?.ok) return `Status check failed (HTTP ${status.res?.status})`;
   return null;
 }
 
 /** Ask one node how it is doing. Never throws. */
-export async function fetchNodeSummary(
-  node: NodeConfig,
-  token: string | null,
-): Promise<NodeSummary> {
-  const [status, camera] = await Promise.all([
-    getJson(`${node.baseUrl}/api/status`, token),
-    getJson(`${node.baseUrl}/api/camera/status`, token),
-  ]);
+export async function fetchNodeSummary(node: NodeConfig): Promise<NodeSummary> {
+  // Sign in first (cached after the first call), so the two reads below
+  // share one token instead of racing to sign in.
+  // A node that did not even answer the sign-in is down: skip the reads
+  // rather than wait out two more timeouts.
+  const signIn = await nodeAuth(node);
+  const unanswered: Fetched = { res: null, body: null, failure: "unreachable" };
+  const [status, camera] =
+    signIn.state === "unreachable"
+      ? [unanswered, unanswered]
+      : await Promise.all([
+          getJson(node, "/api/status"),
+          getJson(node, "/api/camera/status"),
+        ]);
+  // Re-read: a 401 above may have triggered a fresh sign-in.
+  const auth = await nodeAuth(node);
 
   // Any HTTP answer at all means the node is up, even a 401 or a 500.
   const online = status.res !== null;
@@ -116,9 +130,11 @@ export async function fetchNodeSummary(
   return {
     id: node.id,
     name: node.name,
+    nodeName: node.nodeName,
+    auth: auth.state,
     url: node.baseUrl,
     online,
-    error: statusError(status),
+    error: statusError(status, auth.detail),
     fps: asNumber(body?.fps),
     accelerator: asString(body?.accelerator),
     modelVersion: asString(body?.model_version),

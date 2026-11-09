@@ -1,20 +1,18 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { nodeFetch } from "@/lib/nodeAuth";
 import { selectedNode } from "@/lib/selectedNode";
-import { sessionToken } from "@/lib/session";
 
 // Server-side proxy to the ARGUS node's API.
 //
-// The JWT lives in an HttpOnly cookie on *this* origin, so client-side
-// fetches to the backend origin never carry it — against the real node
-// (every route there sits behind `require_auth`) that's a 401, and the
-// mock backend only hid the problem by not checking. Everything the
-// browser needs goes through here instead: same-origin request in,
-// cookie read server-side, `Authorization: Bearer` added on the way
-// out. The token still never reaches client JS.
+// The browser only ever talks to this origin, signed in to the
+// dashboard (proxy.ts checks the session before this runs). The node's
+// own token is attached here, server-side, by lib/nodeAuth.ts, which
+// signs in to each node with the credentials in .env.local and refreshes
+// the token on a 401. Node tokens and passwords never reach the browser.
 //
 // `/api/argus/<suffix>` maps to `<backend>/api/<suffix>`, allowlisted
-// below — this is a proxy to specific endpoints, not an open relay to
+// below -- this is a proxy to specific endpoints, not an open relay to
 // anything on the node. <backend> is the node picked in the nav, looked
 // up by id in ARGUS_NODES (lib/nodes.ts), never a URL from the browser.
 
@@ -35,10 +33,6 @@ const POST_ALLOWED = [/^events\/\d+\/label$/];
 // The MJPEG stream is an open-ended response; nothing here may be cached
 // or buffered into a static payload.
 export const dynamic = "force-dynamic";
-
-function unauthorized() {
-  return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-}
 
 function forbidden(suffix: string) {
   return NextResponse.json(
@@ -89,23 +83,19 @@ export async function GET(
     return forbidden(suffix);
   }
 
-  const token = await sessionToken();
-  if (!token) return unauthorized();
-
   const query = request.nextUrl.search;
   const node = await selectedNode();
 
   try {
-    const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+    const headers: Record<string, string> = {};
     const range = request.headers.get("range");
     if (range) headers.Range = range;
 
-    const upstream = await fetch(`${node.baseUrl}/api/${suffix}${query}`, {
+    const upstream = await nodeFetch(node, `/api/${suffix}${query}`, {
       headers,
       // The browser closing the <img> should tear the camera stream down
       // rather than leave it running against the node.
       signal: request.signal,
-      cache: "no-store",
     });
     return passthrough(upstream);
   } catch {
@@ -122,22 +112,15 @@ export async function POST(
     return forbidden(suffix);
   }
 
-  const token = await sessionToken();
-  if (!token) return unauthorized();
-
   const body = await request.text();
   const node = await selectedNode();
 
   try {
-    const upstream = await fetch(`${node.baseUrl}/api/${suffix}`, {
+    const upstream = await nodeFetch(node, `/api/${suffix}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body,
       signal: request.signal,
-      cache: "no-store",
     });
     return passthrough(upstream);
   } catch {

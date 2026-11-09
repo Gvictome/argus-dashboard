@@ -18,10 +18,16 @@ Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4
 
 ## What's here
 
-- **Auth** — login form → JWT issued by the backend → stored as an
-  **HttpOnly cookie** (never touches client-side JS or `localStorage`).
-  A route guard (`proxy.ts`) reads the cookie server-side to gate
-  `/dashboard`.
+- **Auth** — one dashboard login (`DASHBOARD_USER` / `DASHBOARD_PASSWORD`)
+  → a signed **HttpOnly** session cookie (`lib/dashboardSession.ts`).
+  `proxy.ts` checks it on every page and API route; only `/login`,
+  `/api/auth/login` and `/api/auth/session` are open. The dashboard
+  server then signs in to every node itself (`lib/nodeAuth.ts`): it asks
+  each node whether it needs a token (`GET /api/auth/me`), logs in with
+  that node's credentials, caches the token, and signs in again on a
+  401. Switching cameras never signs you out, and node tokens and
+  passwords never reach the browser. Logout ends the dashboard session
+  only.
 - **Dashboard** (`/dashboard`) — the console, and the landing page after
   login —
   - **Status strip**: FPS, accelerator, model version, nodes online.
@@ -58,12 +64,12 @@ Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4
   server-side with a 2.5 s timeout) and `GET /api/nodes/{id}/snapshot`.
   Stills, not one MJPEG stream per card: browsers allow ~6 open
   connections per origin, which a grid of streams would use up.
-- **Authenticated proxy** (`app/api/argus/[...path]/route.ts`) — the JWT
-  is an HttpOnly cookie on the *dashboard's* origin, so a client-side
-  fetch to the node can't carry it, and every real route sits behind
-  `require_auth`. Browser calls go to `/api/argus/<suffix>` on this
-  origin; the route reads the cookie server-side and adds
-  `Authorization: Bearer` on the way out. Allowlisted paths only —
+- **Authenticated proxy** (`app/api/argus/[...path]/route.ts`) — node
+  tokens live only in the dashboard server, so the browser cannot call a
+  node that has `AUTH_REQUIRED=true` directly. Browser calls go to
+  `/api/argus/<suffix>` on this origin; the route adds the node's
+  `Authorization: Bearer` token (from `lib/nodeAuth.ts`) on the way
+  out. Allowlisted paths only —
   status, events, labels, event stills, camera stream/snapshot — and
   it's what makes an `<img>` able to show an authenticated MJPEG stream
   at all.
@@ -103,7 +109,11 @@ mock backend.
 | Variable | Default | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8000` | Where the FastAPI backend (real or mock) lives. |
-| `ARGUS_NODES` | unset | Every node for the nav's tab bar and the All nodes page, `Name=URL` comma separated (e.g. `Node A=http://10.0.0.140:8000,Node B=http://10.0.0.127:8000`). Adding a node is appending one `,Name=URL` and restarting the dev server. Server-side only: the proxy reaches a node by its id in this list, never a URL from the browser. Unset = one node at `NEXT_PUBLIC_API_BASE_URL`. |
+| `ARGUS_NODES` | unset | Every node for the nav's tab bar and the All nodes page, `Label\|Name=URL` comma separated (e.g. `Camera 2\|Node B=http://10.0.0.129:8000,Camera 3\|Node C=http://10.0.0.139:8000`). The label is optional and is what the console shows; the name is the node's identity (its id and its key in `ARGUS_NODE_CREDS`). Adding a node is appending one entry and restarting the dev server. Server-side only: the proxy reaches a node by its id in this list, never a URL from the browser. Unset = one node at `NEXT_PUBLIC_API_BASE_URL`. |
+| `DASHBOARD_USER` / `DASHBOARD_PASSWORD` | `admin` / none | The one dashboard login. No built-in password: sign-in is refused until it is set. |
+| `DASHBOARD_SESSION_SECRET` | none (required) | Signs the session cookie: 32+ random characters. Without it no one can sign in, so a guessable key can never be used to forge a session. |
+| `ARGUS_NODE_USER` / `ARGUS_NODE_PASSWORD` | `admin` / none | The node login the server uses for every node not in `ARGUS_NODE_CREDS`. |
+| `ARGUS_NODE_CREDS` | unset | Per-node logins, `Name=user:pass` comma separated, keyed by node name, label or id. |
 | `NEXT_PUBLIC_WS_EVENTS_URL` | derived from the above | Override if the WS endpoint lives somewhere else. |
 | `AUTH_COOKIE_SECURE` | `false` | Set to `true` only once the device serves HTTPS. See the comment in `lib/config.ts` — this is a deliberate LAN-vs-TLS decision, not a build-mode side effect. |
 
@@ -113,10 +123,10 @@ The frontend is built against this contract (FastAPI, JWT auth,
 SQLite) — implement against this shape and no frontend changes should
 be needed:
 
-- `POST /api/login` → `{ access_token }` — expected to move to a
-  `Set-Cookie` response once the backend sets the HttpOnly cookie
-  itself; until then, `app/api/auth/login/route.ts` sets it on the
-  backend's behalf.
+- `POST /api/login` → `{ access_token }` — called by the dashboard
+  server (`lib/nodeAuth.ts`), never by the browser.
+- `GET /api/auth/me` → `{ auth_required, ... }` — tells the server
+  whether the node wants a token at all.
 - `GET /api/status` → `{ fps, accelerator, model_version, nodes_online }`
 - `GET /api/events` → array of event records
 - `POST /api/events/{id}/label` → `{ action: "confirm" | "correct", label? }`
@@ -181,10 +191,11 @@ scripts/
 
 ## Known gaps / next steps
 
-- **WS auth is unenforced.** The node's `/ws/events` takes no token
-  today, so the live socket connects straight to the backend origin
-  rather than through the proxy. If that endpoint ever requires auth,
-  the socket needs the same server-side hop the REST calls now take.
+- **The live socket goes straight to the node, without a token.** That
+  works on nodes with `AUTH_REQUIRED=false`. On a node that requires
+  auth the socket is refused and the feed falls back to polling
+  `/api/events` through the proxy every 5 s, so it still updates, just
+  not instantly. A server-side WebSocket hop would fix that.
 - **No alert notifications.** The alerts feed has to be open to be
   seen; nothing pushes to the operator when the page is closed.
 - **`components/dev/TestOfflineToggle.tsx` is a QA aid, not a
