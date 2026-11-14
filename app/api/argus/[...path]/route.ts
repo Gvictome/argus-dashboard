@@ -1,9 +1,11 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { nodeFetch } from "@/lib/nodeAuth";
+import type { NodeConfig } from "@/lib/nodes";
+import { findNode } from "@/lib/nodeSessions";
 import { selectedNode } from "@/lib/selectedNode";
 
-// Server-side proxy to the ARGUS node's API.
+// Server-side proxy to the ARGUS nodes' API.
 //
 // The browser only ever talks to this origin, signed in to the
 // dashboard (proxy.ts checks the session before this runs). The node's
@@ -13,8 +15,10 @@ import { selectedNode } from "@/lib/selectedNode";
 //
 // `/api/argus/<suffix>` maps to `<backend>/api/<suffix>`, allowlisted
 // below -- this is a proxy to specific endpoints, not an open relay to
-// anything on the node. <backend> is the node picked in the nav, looked
-// up by id in ARGUS_NODES (lib/nodes.ts), never a URL from the browser.
+// anything on the node. <backend> is the node named by `?node=<id>` (the
+// side-by-side, labeling and swipe views), or the one picked in the nav
+// when there is none. Either way it is looked up by id in ARGUS_NODES
+// (lib/nodes.ts), never a URL from the browser.
 
 const GET_ALLOWED = [
   /^status$/,
@@ -26,13 +30,47 @@ const GET_ALLOWED = [
   /^events\/\d+\/clip$/,
   /^camera\/snapshot$/,
   /^camera\/stream$/,
+  /^federated\/samples$/,
+  /^federated\/suggestions$/,
+  /^federated\/scores$/,
+  /^events\/\d+$/,
 ];
 
-const POST_ALLOWED = [/^events\/\d+\/label$/];
+// Deliberately only labels and machine suggestions, and generating
+// suggestions writes nothing but the node's suggestions file. Starting a
+// round, bootstrapping synthetic rows and rolling back a model are operator
+// decisions made outside this proxy (the round has its own guarded route,
+// app/api/fl/round), so /federated/round and /federated/samples/bootstrap
+// must never be added.
+const POST_ALLOWED = [
+  /^events\/\d+\/label$/,
+  /^federated\/suggestions\/generate$/,
+  // Machine labels for events the model is very sure of. Marked machine on
+  // the node, never counted as reviewed, never over a person's label.
+  /^federated\/autolabel$/,
+];
 
 // The MJPEG stream is an open-ended response; nothing here may be cached
 // or buffered into a static payload.
 export const dynamic = "force-dynamic";
+
+/** The node this request is for; null when it names an unknown id. */
+async function targetNode(request: NextRequest): Promise<NodeConfig | null> {
+  const id = request.nextUrl.searchParams.get("node");
+  return id === null ? selectedNode() : findNode(id);
+}
+
+function unknownNode() {
+  return NextResponse.json({ error: "Unknown node" }, { status: 404 });
+}
+
+/** The caller's query string, minus the one parameter that is ours. */
+function upstreamQuery(request: NextRequest): string {
+  const params = new URLSearchParams(request.nextUrl.searchParams);
+  params.delete("node");
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
 
 function forbidden(suffix: string) {
   return NextResponse.json(
@@ -83,8 +121,9 @@ export async function GET(
     return forbidden(suffix);
   }
 
-  const query = request.nextUrl.search;
-  const node = await selectedNode();
+  const node = await targetNode(request);
+  if (!node) return unknownNode();
+  const query = upstreamQuery(request);
 
   try {
     const headers: Record<string, string> = {};
@@ -112,8 +151,9 @@ export async function POST(
     return forbidden(suffix);
   }
 
+  const node = await targetNode(request);
+  if (!node) return unknownNode();
   const body = await request.text();
-  const node = await selectedNode();
 
   try {
     const upstream = await nodeFetch(node, `/api/${suffix}`, {

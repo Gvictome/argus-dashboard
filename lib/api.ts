@@ -1,4 +1,12 @@
 import { WS_EVENTS_URL } from "./config";
+import type {
+  GenerateResult,
+  LabelName,
+  LabelProvenance,
+  ReviewPayload,
+  SamplesResponse,
+  SuggestionsResponse,
+} from "./fl/types";
 
 // Shapes match the FastAPI contract in CLAUDE.md — keep in sync with
 // Mohammed's backend once it exists for real.
@@ -9,11 +17,24 @@ import { WS_EVENTS_URL } from "./config";
 // backend's own, minus the /api prefix the proxy re-adds.
 const PROXY_BASE = "/api/argus";
 
+// A panel polling one of several nodes should give up on a dead one
+// quickly; a Pi that is off leaves the connection hanging otherwise.
+const NODE_READ_TIMEOUT_MS = 4_000;
+
+/** Adds the proxy's node selector. Without one it uses the picked node. */
+function withNode(path: string, nodeId?: string): string {
+  if (!nodeId) return path;
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}node=${encodeURIComponent(nodeId)}`;
+}
+
 export interface StatusResponse {
   fps: number;
   accelerator: string;
   model_version: string;
   nodes_online: number;
+  /** The node's own NODE_NAME, which need not match ARGUS_NODES. */
+  node?: string;
 }
 
 /** One thermal reading from the node (GET /api/system/thermal*). */
@@ -80,6 +101,7 @@ export type LabelAction = "confirm" | "correct";
 export interface LabelPayload {
   action: LabelAction;
   label?: string;
+  review?: ReviewPayload;
 }
 
 export class ApiError extends Error {
@@ -114,22 +136,98 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export const api = {
-  getStatus: () => apiFetch<StatusResponse>("/status"),
+/** The API for one node by id, or for the node picked in the nav. */
+export function createApi(nodeId?: string) {
+  const read = <T,>(path: string) =>
+    apiFetch<T>(
+      withNode(path, nodeId),
+      nodeId ? { signal: AbortSignal.timeout(NODE_READ_TIMEOUT_MS) } : undefined,
+    );
 
-  getEvents: () => apiFetch<DetectionEvent[]>("/events"),
+  return {
+    getStatus: () => read<StatusResponse>("/status"),
 
-  getThermal: () => apiFetch<ThermalStatus>("/system/thermal"),
+    getEvents: () => read<DetectionEvent[]>("/events"),
 
-  getThermalHistory: (minutes: number) =>
-    apiFetch<ThermalHistory>(`/system/thermal/history?minutes=${minutes}`),
+    getThermal: () => read<ThermalStatus>("/system/thermal"),
 
-  labelEvent: (id: number, payload: LabelPayload) =>
-    apiFetch<void>(`/events/${id}/label`, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
-};
+    getThermalHistory: (minutes: number) =>
+      read<ThermalHistory>(`/system/thermal/history?minutes=${minutes}`),
+
+    labelEvent: (id: number, payload: LabelPayload) =>
+      apiFetch<void>(withNode(`/events/${id}/label`, nodeId), {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+  };
+}
+
+export const api = createApi();
+
+export interface LabelResult {
+  ok: boolean;
+  id: number;
+  label?: string;
+  labelled_total?: number;
+  /** Absent when the node runs code that does not record provenance. */
+  provenance?: LabelProvenance;
+}
+
+/**
+ * Read a node's samples. A full store can run to megabytes off a busy Pi,
+ * so this allows far longer than the 4 s a status poll gets.
+ */
+export function fetchSamples(nodeId: string, limit: number) {
+  return apiFetch<SamplesResponse>(
+    withNode(`/federated/samples?limit=${limit}`, nodeId),
+    { signal: AbortSignal.timeout(30_000) },
+  );
+}
+
+/**
+ * Write one training label. Always `correct` with an exact label name:
+ * `confirm` lets the node decide what was confirmed from the model's own
+ * call, which would feed the model's opinion back in as ground truth.
+ */
+export function writeLabel(
+  nodeId: string,
+  id: number,
+  label: LabelName,
+  keepalive = false,
+  review?: ReviewPayload,
+) {
+  const payload: LabelPayload = { action: "correct", label, review };
+  return apiFetch<LabelResult>(withNode(`/events/${id}/label`, nodeId), {
+    method: "POST",
+    body: JSON.stringify(payload),
+    keepalive,
+  });
+}
+
+/** A node's machine suggestions, or null if it has no such endpoint yet. */
+export async function fetchSuggestions(
+  nodeId: string,
+): Promise<SuggestionsResponse | null> {
+  try {
+    return await apiFetch<SuggestionsResponse>(
+      withNode("/federated/suggestions", nodeId),
+      { signal: AbortSignal.timeout(30_000) },
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Ask a node to recompute suggestions. Writes only its suggestions file.
+ * `exclude` is the test set, which must never be pre-filled.
+ */
+export function generateSuggestions(nodeId: string, exclude: number[]) {
+  return apiFetch<GenerateResult>(
+    withNode("/federated/suggestions/generate", nodeId),
+    { method: "POST", body: JSON.stringify({ exclude }) },
+  );
+}
 
 /**
  * Opens the live event feed. Backend push shape is identical to a
@@ -161,8 +259,16 @@ export function connectEventsSocket(
  * Authorization header, which is why this points at the proxy rather
  * than at the node's /api/camera/stream directly.
  */
-export function liveStreamUrl(): string {
-  return `${PROXY_BASE}/camera/stream`;
+export function liveStreamUrl(
+  nodeId?: string,
+  params: Record<string, string | number> = {},
+): string {
+  const query = new URLSearchParams(
+    Object.entries(params).map(([key, value]) => [key, String(value)]),
+  );
+  if (nodeId) query.set("node", nodeId);
+  const suffix = query.toString();
+  return `${PROXY_BASE}/camera/stream${suffix ? `?${suffix}` : ""}`;
 }
 
 /** Single still, used as the live panel's poster and on failure retries. */
@@ -175,8 +281,8 @@ export function cameraSnapshotUrl(cacheBust?: number): string {
  * The still captured for one event. The node serves it at
  * /api/events/{id}/snapshot; it 404s for events recorded without one.
  */
-export function eventSnapshotUrl(id: number): string {
-  return `${PROXY_BASE}/events/${id}/snapshot`;
+export function eventSnapshotUrl(id: number, nodeId?: string): string {
+  return withNode(`${PROXY_BASE}/events/${id}/snapshot`, nodeId);
 }
 
 /** The H.264 clip the node kept for a priority-1 event. */

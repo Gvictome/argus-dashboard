@@ -27,17 +27,20 @@ Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4
   that node's credentials, caches the token, and signs in again on a
   401. Switching cameras never signs you out, and node tokens and
   passwords never reach the browser. Logout ends the dashboard session
-  only.
-- **Dashboard** (`/dashboard`) — the console, and the landing page after
-  login —
-  - **Status strip**: FPS, accelerator, model version, nodes online.
-    Three visual states — connecting / online / offline — the offline
-    look also covers a real fetch failure, not just the test toggle.
-  - **Event list**: pulled from `GET /api/events`, flags `stranger`
-    detections with a red indicator.
-  - **Detail panel**: click an event to see its full record, with
-    **Confirm** / **Correct** actions wired to
-    `POST /api/events/{id}/label`.
+  only. When a node turns the server's credentials down, its panel says
+  so (fix that node's login in `.env.local`) instead of asking for a
+  password.
+- **Side-by-side console** (`/dashboard`) — every node in `ARGUS_NODES`
+  on one screen, and the landing page after login. Each panel fetches
+  and fails on its own and shows:
+  - the node's MJPEG camera stream;
+  - **status**: FPS, accelerator, model version and SoC temperature,
+    with connecting / online / offline / node-login-rejected states;
+  - **recent events**, flagging `stranger` detections in red. Clicking
+    one opens the shared detail panel as an overlay, with **Confirm
+    unusual** / **Label** wired to `POST /api/events/{id}/label` on that
+    node, and "Back to live view" (or Esc) closes it while the streams
+    keep running.
 - **Live feed** (`/dashboard/live`) — the node's MJPEG camera stream
   (`GET /api/camera/stream`) beside the last few detections, so you can
   watch a detection happen and label it in the same view. The camera
@@ -54,25 +57,52 @@ Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4
   socket that never opens or dies falls back to polling `/api/events`
   every 5s. The mode badge says which is in effect — "live push" is
   never shown for a poll.
-- **Nodes** — a tab bar in the nav (A, B, C, ...) picks which node every
-  page shows. **All nodes** (`/dashboard/nodes`) shows every node from
-  `ARGUS_NODES` at once: a camera still refreshed every 3 s when the
-  node's camera is running, and its status (online/offline, FPS,
-  backend, model, sample count) either way. Offline and camera-less
-  nodes get their own card. Data comes from `GET /api/nodes/overview`
-  (each node's `/api/status` + `/api/camera/status`, asked in parallel
-  server-side with a 2.5 s timeout) and `GET /api/nodes/{id}/snapshot`.
-  Stills, not one MJPEG stream per card: browsers allow ~6 open
-  connections per origin, which a grid of streams would use up.
+- **Nodes** — a tab bar in the nav (A, B, C, ...) picks which node the
+  single-node pages (Live, Alerts, Thermal) show. **All nodes**
+  (`/dashboard/nodes`) shows every node from `ARGUS_NODES` at once: a
+  camera still refreshed every 3 s when the node's camera is running, and
+  its status (online/offline, FPS, backend, model, sample count) either
+  way. Offline and camera-less nodes get their own card. Data comes from
+  `GET /api/nodes/overview` (each node's `/api/status` +
+  `/api/camera/status`, asked in parallel server-side with a 2.5 s
+  timeout) and `GET /api/nodes/{id}/snapshot`. Stills, not one MJPEG
+  stream per card: browsers allow ~6 open connections per origin, which
+  a grid of streams would use up.
 - **Authenticated proxy** (`app/api/argus/[...path]/route.ts`) — node
   tokens live only in the dashboard server, so the browser cannot call a
   node that has `AUTH_REQUIRED=true` directly. Browser calls go to
   `/api/argus/<suffix>` on this origin; the route adds the node's
   `Authorization: Bearer` token (from `lib/nodeAuth.ts`) on the way
-  out. Allowlisted paths only —
+  out. `?node=<id>` picks the node (an id from `ARGUS_NODES`, never a
+  URL); without it, the node picked in the nav is used. Allowlisted
+  paths only —
   status, events, labels, event stills, camera stream/snapshot — and
   it's what makes an `<img>` able to show an authenticated MJPEG stream
   at all.
+- **Label events** (`/dashboard/label`) — per-node queue of unlabelled real
+  events with their stills. Routine or Anomaly in one tap or key (R, A, 1 to
+  4 for the class, S skip, X no object, U undo), plus a bulk view that only
+  arms once every picture has rendered. A label waits 6 s on the console
+  before it goes to the node, because the node cannot clear one. Labels
+  are sent as `correct` with an exact label name, and the node's reply is
+  checked. A separate **test set** stays on the console, is never sent to
+  the node, and is frozen to measure each model.
+- **Federated** (`/dashboard/federated`) — pre-flight read of real state,
+  whether things are improving on the frozen test set, per-node gate
+  charts, run history. The node proxy allowlist contains no round or
+  bootstrap route. The **Federated round** panel at the top shows each
+  node's human-reviewed labels against the 20 minimum, round state, last
+  result and whether the aggregator listens, and has **Check labels** and
+  **Run federated round** buttons (`app/api/fl/round/route.ts`). Those
+  open a visible Git Bash window on this PC running
+  `~/ARGUS/run-round-console.sh`; the POST is refused unless the request
+  comes from localhost, with a same-origin `Origin`, and carries a valid
+  dashboard session.
+- **Federated history on disk** — `data/federated/history.json` and
+  `operator-notes.jsonl` (gitignored; `ARGUS_FL_DATA_DIR` moves them).
+  The aggregator and the nodes do not keep this, so leave the Federated
+  page open during a round. Flower's REST address is
+  `ARGUS_FLOWER_API`, default `http://localhost:8090`.
 - **Design system** — dark, deliberately non-adaptive theme (see
   `app/globals.css`): near-black background, monospace for
   timestamps/data, a single teal accent reserved for "live" status,
@@ -163,13 +193,15 @@ Event record:
 ```
 app/
   login/            login page
-  dashboard/        the console (home)
+  dashboard/        side-by-side console (home)
   dashboard/live/   camera stream + recent detections
   dashboard/alerts/ flagged events only, with stills
   api/auth/         login/logout/session route handlers (cookie logic lives here)
   api/argus/        server-side proxy to the node, adds the bearer token
   page.tsx          "/" — pure auth-state redirect, not a real page
 components/
+  NodePanel.tsx     one node on the side-by-side console
+  NodeAuthNotice.tsx  what a panel shows when a node answers 401
   StatusStrip.tsx, EventList.tsx, EventDetailPanel.tsx, StatusDot.tsx
   DashboardNav.tsx  shared header/nav, carries the alert count
   LiveFeed.tsx      MJPEG panel + its own failure states
@@ -177,6 +209,7 @@ components/
   dev/TestOfflineToggle.tsx   ← see "Known gaps" below
 hooks/
   useEventFeed.ts   WS feed with a polling fallback, shared by all pages
+  useNodeHealth.ts  one panel's status and temperature polling
 lib/
   api.ts            typed client for the backend contract above
   AuthContext.tsx   global auth state (session status only, never the JWT)
@@ -200,7 +233,8 @@ scripts/
   seen; nothing pushes to the operator when the page is closed.
 - **`components/dev/TestOfflineToggle.tsx` is a QA aid, not a
   feature.** It fakes the offline status-strip look without touching
-  the real connection, for visual testing. Every place it's wired in
+  the real connection, for visual testing. Nothing wires it in since
+  `/dashboard` became the side-by-side view; any place it's wired in
   is marked `// TEST ONLY — remove before final build` — grep for that
   string before shipping.
 - **HTTPS is an open decision, not solved.** `AUTH_COOKIE_SECURE`
