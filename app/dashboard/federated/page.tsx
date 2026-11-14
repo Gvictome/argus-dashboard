@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardNav } from "@/components/DashboardNav";
 import { PreflightPanel, DetectorQualityPanel } from "@/components/fl/PreflightPanel";
+import { RoundControl } from "@/components/fl/RoundControl";
 import { RunHistory } from "@/components/fl/RunHistory";
 import { TrendChart, type TrendSeries } from "@/components/fl/TrendChart";
 import { useAuth } from "@/hooks/useAuth";
@@ -238,6 +239,8 @@ export default function FederatedPage() {
           {problem}
         </div>
       )}
+
+      <RoundControl />
 
       {preflight ? (
         <PreflightPanel data={preflight} />
