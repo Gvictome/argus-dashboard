@@ -45,7 +45,7 @@ export function DashboardNav({
         <h1 className="mt-1 text-lg font-medium text-foreground">{title}</h1>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <NodeSwitcher />
 
         <nav className="flex items-center gap-1 rounded-lg border border-border bg-surface p-1 shadow-sm">

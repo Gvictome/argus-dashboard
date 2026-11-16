@@ -876,7 +876,7 @@ export function LabelWorkspace({
               type="button"
               disabled={!canLabel || !cls}
               onClick={() => onLabelKey("routine")}
-              className="rounded bg-accent py-3 font-semibold tracking-label text-accent-foreground uppercase transition-opacity disabled:opacity-40"
+              className="rounded bg-success py-3 font-semibold tracking-label text-on-status uppercase transition-opacity hover:opacity-90 disabled:opacity-40"
             >
               Routine (R)
             </button>

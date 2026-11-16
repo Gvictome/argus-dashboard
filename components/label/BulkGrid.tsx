@@ -74,7 +74,7 @@ export function BulkGrid({
           type="button"
           disabled={!ready}
           onClick={() => onConfirm(chosen)}
-          className="rounded bg-accent px-4 py-2 font-mono text-xs font-semibold tracking-label text-accent-foreground uppercase transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded bg-success px-4 py-2 font-mono text-xs font-semibold tracking-label text-on-status uppercase transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {ready
             ? `Confirm ${chosen.length} as routine`
@@ -91,7 +91,7 @@ export function BulkGrid({
             <li key={item.n}>
               <label
                 className={`block cursor-pointer overflow-hidden rounded border p-1 transition-colors ${
-                  isOut ? "border-border opacity-40" : "border-accent/50"
+                  isOut ? "border-border opacity-40" : "border-success/50"
                 }`}
               >
                 <SnapshotImage
