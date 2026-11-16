@@ -133,7 +133,8 @@ export function SwipeCardBody({
 
   return (
     <div className="flex flex-col">
-      <div className="relative">
+      {/* Media plus the chips drawn over it: always on black, so dark tokens. */}
+      <div className="relative scheme-dark">
         {playing && clip ? (
           <video src={clip} controls autoPlay muted playsInline className="block w-full bg-black" />
         ) : (

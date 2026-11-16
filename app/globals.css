@@ -20,7 +20,15 @@
 
 :root {
   color-scheme: light dark;
+}
 
+/* Chrome resolves light-dark() inside a custom property on the element
+   that declares it, not where it is used. So the tokens are declared again
+   on every .scheme-dark element (Tailwind's color-scheme: dark utility,
+   used on black camera frames): there they resolve to the dark side,
+   keeping text and chips over video readable in light mode. */
+:root,
+.scheme-dark {
   /* Neutral surfaces, back to front */
   --background: light-dark(#f7f7f8, #0b0c0e);
   --surface: light-dark(#ffffff, #121417);
