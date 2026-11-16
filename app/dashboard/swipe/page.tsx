@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { SwipeDeck } from "@/components/swipe/SwipeDeck";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useNodes } from "@/hooks/useNodes";
 import { loadReviewer, storeReviewer } from "@/lib/swipe/client";
@@ -53,11 +54,14 @@ export default function SwipePage() {
           </Link>
           <h1 className="text-lg leading-tight font-semibold text-foreground">Swipe to label</h1>
         </div>
-        {reviewer && (
-          <button type="button" onClick={() => setReviewer("")} className="rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted" title="Change reviewer">
-            {reviewer}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {reviewer && (
+            <button type="button" onClick={() => setReviewer("")} className="rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted" title="Change reviewer">
+              {reviewer}
+            </button>
+          )}
+          <ThemeToggle />
+        </div>
       </header>
 
       {status !== "authenticated" || !loaded || reviewer === null ? (

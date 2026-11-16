@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { NodeSwitcher } from "@/components/NodeSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 // One header for every console page, so there is always a way back to
 // the console from the live feed and the alerts feed — and to them from
@@ -47,7 +48,7 @@ export function DashboardNav({
       <div className="flex flex-wrap items-center gap-2">
         <NodeSwitcher />
 
-        <nav className="flex items-center gap-1 rounded border border-border bg-surface p-1">
+        <nav className="flex items-center gap-1 rounded-lg border border-border bg-surface p-1 shadow-sm">
           {LINKS.map((link) => {
             // Exact match only: /dashboard must not light up while its
             // own sub-pages are open.
@@ -75,6 +76,8 @@ export function DashboardNav({
             );
           })}
         </nav>
+
+        <ThemeToggle />
 
         <button
           onClick={() => logout().then(() => router.replace("/login"))}

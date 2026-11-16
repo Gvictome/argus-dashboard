@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { StatusDot } from "@/components/StatusDot";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /**
  * Only same-origin paths, so ?from= cannot bounce a login off-site.
@@ -48,7 +49,10 @@ export function LoginForm({ cameras, from }: { cameras: string[]; from?: string 
   }
 
   return (
-    <div className="flex min-h-screen flex-1 items-center justify-center px-4">
+    <div className="relative flex min-h-screen flex-1 items-center justify-center px-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-sm">
         <div className="mb-8 flex items-center justify-between">
           <div>
@@ -67,7 +71,7 @@ export function LoginForm({ cameras, from }: { cameras: string[]; from?: string 
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-md border border-border bg-surface p-6"
+          className="rounded-xl border border-border bg-surface p-6 shadow-sm"
         >
           <div className="space-y-4">
             {cameras.length > 0 && (
