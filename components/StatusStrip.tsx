@@ -58,7 +58,7 @@ export function StatusStrip({
       <div className="flex items-center gap-2">
         <StatusDot tone={dotTone} />
         <span
-          className={`font-mono text-[11px] tracking-widest uppercase ${
+          className={`font-mono text-2xs tracking-widest uppercase ${
             isOffline ? "text-danger" : "text-muted"
           }`}
         >
@@ -81,7 +81,7 @@ export function StatusStrip({
       </div>
 
       {isOffline && data && (
-        <p className="mt-2 font-mono text-[10px] tracking-wide text-danger/80 uppercase">
+        <p className="mt-2 font-mono text-3xs tracking-wide text-danger/80 uppercase">
           last known values — unconfirmed
         </p>
       )}
@@ -100,7 +100,7 @@ export function Metric({
 }) {
   return (
     <div className="min-w-0">
-      <p className="font-mono text-[10px] tracking-wider text-muted uppercase">
+      <p className="font-mono text-3xs tracking-wider text-muted uppercase">
         {label}
       </p>
       <p className="truncate font-mono text-sm text-foreground" style={{ color }}>

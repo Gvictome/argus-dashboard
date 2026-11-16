@@ -9,9 +9,9 @@ import { fetchEventClip } from "@/lib/swipe/client";
 import type { Card, Item } from "@/lib/swipe/queue";
 
 const LANE_BADGE: Record<Card["lane"], { text: string; className: string }> = {
-  uncertain: { text: "Model unsure", className: "bg-accent/15 text-accent" },
-  random: { text: "Calibration · guess hidden", className: "bg-foreground/10 text-foreground" },
-  spot: { text: "Spot check · machine label", className: "bg-amber-400/15 text-amber-300" },
+  uncertain: { text: "Model unsure", className: "bg-accent text-accent-foreground" },
+  random: { text: "Calibration · guess hidden", className: "bg-black/70 text-foreground" },
+  spot: { text: "Spot check · machine label", className: "bg-warning text-on-status" },
 };
 
 function pretty(label: string): string {
@@ -65,7 +65,7 @@ export function Snapshot({
   }
 
   return (
-    <div className={`relative w-full overflow-hidden bg-black ${className}`}>
+    <div className={`relative w-full overflow-hidden bg-black scheme-dark ${className}`}>
       <div style={{ transform, transformOrigin: "0 0" }} className="transition-transform duration-300">
         <img
           src={eventSnapshotUrl(item.n, nodeId)}
@@ -146,7 +146,7 @@ export function SwipeCardBody({
             <Snapshot item={card.lead} nodeId={nodeId} zoom={zoom} onState={onImageState} />
           </button>
         )}
-        <span className={`absolute top-2 left-2 rounded-full px-2.5 py-1 font-mono text-[10px] tracking-wider uppercase backdrop-blur ${badge.className}`}>
+        <span className={`absolute top-2 left-2 rounded-full px-2.5 py-1 font-mono text-3xs tracking-wider uppercase backdrop-blur ${badge.className}`}>
           {badge.text}
         </span>
         {count > 1 && (
@@ -170,7 +170,7 @@ export function SwipeCardBody({
       </div>
 
       <div className="flex flex-col gap-2 px-4 py-3">
-        <div className="flex items-baseline justify-between gap-2 font-mono text-[11px] text-muted">
+        <div className="flex items-baseline justify-between gap-2 font-mono text-2xs text-muted">
           <span>
             {nodeName} · #{card.lead.n}
           </span>
@@ -183,7 +183,7 @@ export function SwipeCardBody({
           {card.guess ? (
             <span
               className={`rounded px-2 py-0.5 text-sm font-semibold ${
-                card.guess.label === "anomaly" ? "bg-danger/15 text-danger" : "bg-accent/15 text-accent"
+                card.guess.label === "anomaly" ? "bg-danger/15 text-danger" : "bg-success/15 text-success"
               }`}
               title={card.guess.source}
             >
@@ -198,7 +198,7 @@ export function SwipeCardBody({
         {card.guess?.confidence !== null && card.guess && (
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-raised" aria-hidden>
             <div
-              className={card.guess.label === "anomaly" ? "h-full bg-danger" : "h-full bg-accent"}
+              className={card.guess.label === "anomaly" ? "h-full bg-anomaly" : "h-full bg-success"}
               style={{ width: `${Math.round((card.guess.confidence ?? 0) * 100)}%` }}
             />
           </div>

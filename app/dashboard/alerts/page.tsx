@@ -73,7 +73,7 @@ export default function AlertsPage() {
         </div>
         <button
           onClick={() => setUnresolvedOnly((value) => !value)}
-          className="rounded border border-border px-3 py-2 font-mono text-[11px] tracking-[0.2em] text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
+          className="rounded border border-border px-3 py-2 font-mono text-2xs tracking-label text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
         >
           {unresolvedOnly ? "Show reviewed too" : "Unresolved only"}
         </button>
@@ -89,23 +89,23 @@ export default function AlertsPage() {
       <div className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
         <div className="min-h-[420px]">
           {loading ? (
-            <div className="flex h-full items-center justify-center rounded border border-border bg-surface">
+            <div className="flex h-full items-center justify-center rounded-lg border border-border bg-surface shadow-sm">
               <p className="font-mono text-xs tracking-widest text-muted uppercase">
                 Loading alerts…
               </p>
             </div>
           ) : visible.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-3 rounded border border-border bg-surface px-6 text-center">
+            <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-border bg-surface shadow-sm px-6 text-center">
               <p className="font-mono text-xs tracking-widest text-muted uppercase">
                 Nothing flagged
               </p>
-              <p className="max-w-sm font-mono text-[11px] leading-relaxed text-muted">
+              <p className="max-w-sm font-mono text-2xs leading-relaxed text-muted">
                 Routine activity stays on the console. Alerts appear here when
                 the node judges something unusual for this site.
               </p>
               <Link
                 href="/dashboard"
-                className="font-mono text-[11px] tracking-[0.2em] text-accent uppercase"
+                className="font-mono text-2xs tracking-label text-accent uppercase"
               >
                 Back to console
               </Link>

@@ -41,21 +41,21 @@ export function NodePanel({
     <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
       <div className="flex min-w-0 items-center gap-2">
         <StatusDot
-          tone={state === "online" ? "live" : state === "offline" ? "down" : "idle"}
+          tone={state === "online" ? "live" : state === "offline" ? "offline" : "idle"}
           pulse={state === "online"}
         />
         <h2 className="truncate text-sm font-medium text-foreground">{node.name}</h2>
         {/* The node's own idea of its name labels its events below. */}
         {reportedName && reportedName !== node.name && (
-          <span className="truncate font-mono text-[11px] text-muted">
+          <span className="truncate font-mono text-2xs text-muted">
             reports as {reportedName}
           </span>
         )}
       </div>
       <div className="flex shrink-0 items-center gap-3">
         <span
-          className={`font-mono text-[11px] tracking-widest uppercase ${
-            state === "offline" ? "text-danger" : "text-muted"
+          className={`font-mono text-2xs tracking-widest uppercase ${
+            state === "offline" ? "text-offline" : "text-muted"
           }`}
         >
           {STATE_COPY[state]}
@@ -89,8 +89,8 @@ export function NodePanel({
   return (
     <section
       aria-label={node.name}
-      className={`flex min-w-0 flex-col rounded border bg-surface ${
-        state === "offline" ? "border-danger/40" : "border-border"
+      className={`flex min-w-0 flex-col rounded-lg border bg-surface shadow-sm ${
+        state === "offline" ? "border-dashed border-border-strong" : "border-border"
       }`}
     >
       {state === "signin" ? (
@@ -168,15 +168,15 @@ function NodeContent({
       {online ? (
         <LiveFeed nodeId={node.id} compact />
       ) : (
-        <div className="flex aspect-video max-h-[42vh] w-full items-center justify-center bg-black">
-          <p className="font-mono text-xs tracking-widest text-danger uppercase">
+        <div className="flex aspect-video max-h-[42vh] w-full items-center justify-center bg-black scheme-dark">
+          <p className="font-mono text-xs tracking-widest text-offline uppercase">
             Node offline
           </p>
         </div>
       )}
 
       {online && error && (
-        <p className="border-t border-border px-4 py-2 font-mono text-[11px] text-danger">
+        <p className="border-t border-border px-4 py-2 font-mono text-2xs text-danger">
           Events unavailable: {error}
         </p>
       )}
@@ -241,13 +241,13 @@ function EventDetailOverlay({
       onClick={(clickEvent) => {
         if (clickEvent.target === clickEvent.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4 backdrop-blur-sm"
     >
       <div className="flex max-h-full w-full max-w-md flex-col gap-3 overflow-y-auto">
         <button
           ref={backRef}
           onClick={onClose}
-          className="rounded border border-border bg-surface px-4 py-3 text-center font-mono text-[11px] tracking-[0.2em] text-foreground uppercase transition-colors hover:border-accent"
+          className="rounded border border-border bg-surface px-4 py-3 text-center font-mono text-2xs tracking-label text-foreground uppercase transition-colors hover:border-accent"
         >
           ← Back to live view
         </button>

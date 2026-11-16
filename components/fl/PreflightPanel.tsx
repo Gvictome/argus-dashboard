@@ -13,15 +13,15 @@ export function PreflightPanel({ data }: { data: PreflightResponse }) {
   const { server } = data;
 
   return (
-    <section className="rounded border border-border bg-surface p-4 font-mono text-xs">
+    <section className="rounded-lg border border-border bg-surface shadow-sm p-4 font-mono text-xs">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-sans text-sm font-medium text-foreground">Pre-flight</h2>
-        <p className="text-[11px] text-muted">
+        <p className="text-2xs text-muted">
           Read {formatEpoch(data.checkedAt)}. This panel starts nothing.
         </p>
       </div>
 
-      <p className={`mt-2 text-sm ${blockers.length ? "text-danger" : "text-accent"}`}>
+      <p className={`mt-2 text-sm ${blockers.length ? "text-danger" : "text-success"}`}>
         {blockers.length
           ? `✕ Not ready: ${blockers.length} blocker${blockers.length === 1 ? "" : "s"}`
           : "✓ No blockers found. A round still needs Gio's go."}
@@ -51,7 +51,7 @@ export function PreflightPanel({ data }: { data: PreflightResponse }) {
                 <td className={TD}>{node.name}</td>
                 <td className={TD}>
                   {node.online ? (
-                    <span className="text-accent">✓ online</span>
+                    <span className="text-success">✓ online</span>
                   ) : (
                     <span className="text-danger">✕ {node.error ?? "offline"}</span>
                   )}
@@ -104,7 +104,7 @@ export function PreflightPanel({ data }: { data: PreflightResponse }) {
       <dl className="mt-4 grid gap-x-8 gap-y-1 sm:grid-cols-2">
         <div className="flex justify-between gap-4">
           <dt className="text-muted">Flower server</dt>
-          <dd className={server.up ? "text-accent" : "text-danger"}>
+          <dd className={server.up ? "text-success" : "text-danger"}>
             {server.up ? "✓ up" : `✕ ${server.error ?? "down"}`}
           </dd>
         </div>
@@ -125,7 +125,7 @@ export function PreflightPanel({ data }: { data: PreflightResponse }) {
           <dd className="text-foreground">{server.flwrHandChecked}</dd>
         </div>
       </dl>
-      <p className="mt-1 text-[11px] text-muted">
+      <p className="mt-1 text-2xs text-muted">
         Clients only connect once a round is triggered, so 0 is normal before
         that. The server&apos;s own connected count stays 0 until a round ends.
         No API reports flwr, so those are hand-checked values.
@@ -151,11 +151,11 @@ export function PreflightPanel({ data }: { data: PreflightResponse }) {
 
 export function DetectorQualityPanel({ data }: { data: PreflightResponse }) {
   return (
-    <section className="rounded border border-border bg-surface p-4 font-mono text-xs">
+    <section className="rounded-lg border border-border bg-surface shadow-sm p-4 font-mono text-xs">
       <h2 className="font-sans text-sm font-medium text-foreground">
         Detector class, as confirmed by the operator
       </h2>
-      <p className="mt-1 text-[11px] leading-relaxed text-muted">
+      <p className="mt-1 text-2xs leading-relaxed text-muted">
         YOLO is not federated, so rounds cannot change these. This is how often
         a person agreed with the detector&apos;s class on events they labelled
         routine. It covers only those events and misses anything YOLO never

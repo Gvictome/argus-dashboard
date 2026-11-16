@@ -50,7 +50,7 @@ const VERDICT_STYLE: Record<TrendKind, { icon: string; color: string }> = {
   "too-few": { icon: "·", color: "var(--muted)" },
   unclear: { icon: "–", color: AMBER },
   flat: { icon: "–", color: AMBER },
-  improving: { icon: "▲", color: "var(--accent)" },
+  improving: { icon: "▲", color: "var(--success)" },
   regressing: { icon: "▼", color: "var(--danger)" },
 };
 
@@ -225,7 +225,7 @@ export default function FederatedPage() {
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-1 flex-col gap-4 px-6 py-6">
       <DashboardNav title="Federated learning" />
 
-      <p className="font-mono text-[11px] leading-relaxed text-muted">
+      <p className="font-mono text-2xs leading-relaxed text-muted">
         Rounds train the anomaly head, which judges whether a detection is
         routine for this site. They do not change YOLO or its bounding boxes.
         Real data only: synthetic rows are excluded, and the Nov 8 simulation is
@@ -245,16 +245,16 @@ export default function FederatedPage() {
       {preflight ? (
         <PreflightPanel data={preflight} />
       ) : (
-        <p className="rounded border border-border bg-surface p-6 font-mono text-xs text-muted">
+        <p className="rounded-lg border border-border bg-surface shadow-sm p-6 font-mono text-xs text-muted">
           Reading the nodes and the Flower server…
         </p>
       )}
 
-      <section className="rounded border border-border bg-surface p-4 font-mono text-xs">
+      <section className="rounded-lg border border-border bg-surface shadow-sm p-4 font-mono text-xs">
         <h2 className="font-sans text-sm font-medium text-foreground">
           Is it improving?
         </h2>
-        <p className="mt-1 text-[11px] leading-relaxed text-muted">
+        <p className="mt-1 text-2xs leading-relaxed text-muted">
           Judged only on each node&apos;s frozen test set: events labelled on
           this console and never sent to the node, so no round has trained on
           them. It says improving or regressing only when the 95% ranges stop
@@ -270,13 +270,13 @@ export default function FederatedPage() {
                 <button
                   type="button"
                   onClick={() => measure(node.id)}
-                  className="text-[11px] text-accent underline-offset-2 hover:underline"
+                  className="text-2xs text-accent underline-offset-2 hover:underline"
                 >
                   Measure now
                 </button>
               )}
               {lastMeasurement(node.id) && (
-                <span className="text-[11px] text-muted">
+                <span className="text-2xs text-muted">
                   Latest on {lastMeasurement(node.id)!.modelVersion}
                   {lastMeasurement(node.id)!.contaminated > 0 &&
                     `, ${lastMeasurement(node.id)!.contaminated} excluded as labelled on node`}
@@ -285,7 +285,7 @@ export default function FederatedPage() {
             </li>
           ))}
         </ul>
-        {measureNote && <p className="mt-2 text-[11px] text-accent">{measureNote}</p>}
+        {measureNote && <p className="mt-2 text-2xs text-accent">{measureNote}</p>}
       </section>
 
       {testCharts && (
@@ -319,7 +319,7 @@ export default function FederatedPage() {
           <h2 className="mb-2 text-sm font-medium text-foreground">
             Validation gate, per node
           </h2>
-          <p className="mb-3 font-mono text-[11px] leading-relaxed text-muted">
+          <p className="mb-3 font-mono text-2xs leading-relaxed text-muted">
             Candidate against live on the node&apos;s own holdout. Read within
             one run: the holdout reshuffles when labels are added, so scores in
             different runs are not on the same events.
@@ -343,7 +343,7 @@ export default function FederatedPage() {
 
       {preflight && <DetectorQualityPanel data={preflight} />}
 
-      <p className="font-mono text-[11px] text-muted">
+      <p className="font-mono text-2xs text-muted">
         {historyData ? `History is saved in ${historyData.dataDir}. ` : ""}
         Keep this page open during a round so each result is copied there as
         soon as it appears.
@@ -364,7 +364,7 @@ function Verdict({
 }) {
   const style = VERDICT_STYLE[kind];
   return (
-    <span className="text-[11px] text-muted">
+    <span className="text-2xs text-muted">
       {name}:{" "}
       <span aria-hidden style={{ color: style.color }}>
         {style.icon}

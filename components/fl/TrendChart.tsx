@@ -102,14 +102,14 @@ export function TrendChart({
     active !== null ? Math.min(Math.max(xAt(active) - 80, 0), width - 170) : 0;
 
   return (
-    <figure className="min-w-0 rounded border border-border bg-surface p-4">
+    <figure className="min-w-0 rounded-lg border border-border bg-surface shadow-sm p-4">
       <figcaption>
         <p className="text-sm font-medium text-foreground">{title}</p>
-        <p className="mt-0.5 font-mono text-[11px] leading-relaxed text-muted">{subtitle}</p>
+        <p className="mt-0.5 font-mono text-2xs leading-relaxed text-muted">{subtitle}</p>
       </figcaption>
 
       {series.length > 1 && (
-        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-muted">
+        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-2xs text-muted">
           {series.map((item) => (
             <li key={item.id} className="flex items-center gap-1.5">
               <span aria-hidden className="h-0.5 w-3 rounded" style={{ background: item.color }} />
@@ -149,7 +149,7 @@ export function TrendChart({
                     y={yAt(tick)}
                     dy="0.32em"
                     textAnchor="end"
-                    className="fill-muted font-mono text-[10px] tabular-nums"
+                    className="fill-muted font-mono text-3xs tabular-nums"
                   >
                     {format(tick)}
                   </text>
@@ -157,7 +157,7 @@ export function TrendChart({
               ))}
 
               {xLabels.map((label, index) => (
-                <g key={label + index} className="fill-muted font-mono text-[10px]">
+                <g key={label + index} className="fill-muted font-mono text-3xs">
                   <text x={xAt(index)} y={HEIGHT + PAD.top + 16} textAnchor="middle">
                     {label}
                   </text>
@@ -235,7 +235,7 @@ export function TrendChart({
 
             {active !== null && (
               <div
-                className="pointer-events-none absolute top-1 z-10 w-[170px] rounded border border-border bg-surface-raised p-2 font-mono text-[11px]"
+                className="pointer-events-none absolute top-1 z-10 w-[170px] rounded border border-border bg-surface-raised p-2 font-mono text-2xs"
                 style={{ left: tooltipLeft }}
               >
                 <p className="mb-1 text-muted">{xLabels[active]}</p>
@@ -265,7 +265,7 @@ export function TrendChart({
       </div>
 
       {hasData && (
-        <details className="mt-2 font-mono text-[11px] text-muted">
+        <details className="mt-2 font-mono text-2xs text-muted">
           <summary className="cursor-pointer">Table</summary>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-left tabular-nums">

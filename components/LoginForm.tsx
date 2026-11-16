@@ -56,14 +56,14 @@ export function LoginForm({ cameras, from }: { cameras: string[]; from?: string 
       <div className="w-full max-w-sm">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <p className="font-mono text-xs tracking-[0.3em] text-muted uppercase">
+            <p className="font-mono text-xs tracking-brand text-muted uppercase">
               ARGUS
             </p>
             <h1 className="mt-1 text-lg font-medium text-foreground">
               Security console
             </h1>
           </div>
-          <div className="flex items-center gap-2 font-mono text-[11px] text-muted">
+          <div className="flex items-center gap-2 font-mono text-2xs text-muted">
             <StatusDot tone="live" />
             <span>NODES ONLINE</span>
           </div>
@@ -75,7 +75,7 @@ export function LoginForm({ cameras, from }: { cameras: string[]; from?: string 
         >
           <div className="space-y-4">
             {cameras.length > 0 && (
-              <p className="font-mono text-[11px] leading-relaxed text-muted">
+              <p className="font-mono text-2xs leading-relaxed text-muted">
                 One sign-in for{" "}
                 <span className="text-foreground">{cameras.join(", ")}</span>
               </p>
@@ -84,7 +84,7 @@ export function LoginForm({ cameras, from }: { cameras: string[]; from?: string 
             <div>
               <label
                 htmlFor="username"
-                className="block font-mono text-[11px] tracking-wider text-muted uppercase"
+                className="block font-mono text-2xs tracking-wider text-muted uppercase"
               >
                 Username
               </label>
@@ -96,14 +96,14 @@ export function LoginForm({ cameras, from }: { cameras: string[]; from?: string 
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="mt-2 w-full rounded border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-foreground outline-none focus:border-accent"
+                className="mt-2 w-full rounded border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/25"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="block font-mono text-[11px] tracking-wider text-muted uppercase"
+                className="block font-mono text-2xs tracking-wider text-muted uppercase"
               >
                 Password
               </label>
@@ -115,7 +115,7 @@ export function LoginForm({ cameras, from }: { cameras: string[]; from?: string 
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-2 w-full rounded border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-foreground outline-none focus:border-accent"
+                className="mt-2 w-full rounded border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/25"
               />
             </div>
           </div>
@@ -129,7 +129,7 @@ export function LoginForm({ cameras, from }: { cameras: string[]; from?: string 
           <button
             type="submit"
             disabled={submitting}
-            className="mt-6 w-full rounded bg-accent py-2 font-mono text-xs font-semibold tracking-[0.2em] text-background uppercase transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="mt-6 w-full rounded bg-accent py-2 font-mono text-xs font-semibold tracking-label text-accent-foreground uppercase transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {submitting ? "Authenticating…" : "Authenticate"}
           </button>

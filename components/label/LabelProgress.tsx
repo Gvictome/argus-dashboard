@@ -5,7 +5,7 @@ import { LABEL_NAMES, MIN_LABELS_PER_NODE, type LabelName } from "@/lib/fl/types
 // Colors validated with the dataviz script against this console's surface.
 // Anomaly sits apart from yellow so the two never touch.
 const SEGMENTS: { label: LabelName; name: string; color: string }[] = [
-  { label: "anomaly", name: "Anomaly", color: "var(--danger)" },
+  { label: "anomaly", name: "Anomaly", color: "var(--anomaly)" },
   { label: "routine_person", name: "Person", color: "var(--series-1)" },
   { label: "routine_vehicle", name: "Vehicle", color: "var(--series-2)" },
   { label: "routine_animal", name: "Animal", color: "var(--series-3)" },
@@ -33,10 +33,10 @@ export function LabelProgress({
   const anomalies = counts.anomaly;
 
   return (
-    <section className="grid items-center gap-4 rounded border border-border bg-surface px-4 py-3 md:grid-cols-[auto_1fr]">
+    <section className="grid items-center gap-4 rounded-lg border border-border bg-surface shadow-sm px-4 py-3 md:grid-cols-[auto_1fr]">
       <div className="flex items-center gap-3 pr-6 md:border-r md:border-border">
         <p className="text-4xl leading-none font-semibold text-foreground">{anomalies}</p>
-        <p className="max-w-[130px] font-mono text-[11px] leading-snug tracking-wider text-muted uppercase">
+        <p className="max-w-[130px] font-mono text-2xs leading-snug tracking-wider text-muted uppercase">
           Anomalies reviewed
         </p>
       </div>
@@ -48,7 +48,7 @@ export function LabelProgress({
             {MIN_LABELS_PER_NODE} human-reviewed labels for a round
             {pending > 0 && <span className="text-muted"> · {pending} saving</span>}
           </p>
-          <p className="font-mono text-[11px] text-muted">
+          <p className="font-mono text-2xs text-muted">
             {totalEvents} events recorded
             {synthetic > 0 && ` · ${synthetic} synthetic rows excluded`}
           </p>
@@ -78,7 +78,7 @@ export function LabelProgress({
             ))}
           </div>
         )}
-        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-muted">
+        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-2xs text-muted">
           {SEGMENTS.map((segment) => (
             <li key={segment.label} className="flex items-center gap-1.5">
               <span
@@ -91,7 +91,7 @@ export function LabelProgress({
             </li>
           ))}
         </ul>
-        <p className="mt-1 font-mono text-[11px] text-muted">
+        <p className="mt-1 font-mono text-2xs text-muted">
           Real camera events only, synthetic rows excluded. Unlabelled is never
           treated as routine. {machineLabelled} machine label
           {machineLabelled === 1 ? "" : "s"} on this node not reviewed yet.

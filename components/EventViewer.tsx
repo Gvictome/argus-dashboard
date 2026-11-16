@@ -26,14 +26,14 @@ export function EventViewer({
   onBack: () => void;
 }) {
   return (
-    <div className="flex flex-col rounded border border-border bg-surface">
+    <div className="flex flex-col rounded-lg border border-border bg-surface shadow-sm">
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
-        <p className="font-mono text-[11px] tracking-widest text-muted uppercase">
+        <p className="font-mono text-2xs tracking-widest text-muted uppercase">
           Event #{eventId} · live paused
         </p>
         <button
           onClick={onBack}
-          className="rounded border border-border px-3 py-1.5 font-mono text-[11px] tracking-[0.2em] text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
+          className="rounded border border-border px-3 py-1.5 font-mono text-2xs tracking-label text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
         >
           ← Back to live
         </button>
@@ -54,7 +54,7 @@ export function EventViewer({
           </dl>
         </>
       ) : (
-        <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 bg-black px-6 text-center">
+        <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 bg-black scheme-dark px-6 text-center">
           <p className="font-mono text-xs tracking-widest text-muted uppercase">
             {loading
               ? "Loading event…"
@@ -63,7 +63,7 @@ export function EventViewer({
                 : "Event not found"}
           </p>
           {!loading && !feedError && (
-            <p className="max-w-sm font-mono text-[11px] leading-relaxed text-muted">
+            <p className="max-w-sm font-mono text-2xs leading-relaxed text-muted">
               Event #{eventId} is not among this node&apos;s recent events. It
               may belong to another camera or have aged out of the feed.
             </p>

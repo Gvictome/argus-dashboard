@@ -18,14 +18,14 @@ export function EventList({
       className={
         bare
           ? "flex h-full flex-col"
-          : "flex h-full flex-col rounded border border-border bg-surface"
+          : "flex h-full flex-col rounded-lg border border-border bg-surface shadow-sm"
       }
     >
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <p className="font-mono text-[11px] tracking-widest text-muted uppercase">
+        <p className="font-mono text-2xs tracking-widest text-muted uppercase">
           Recent events
         </p>
-        <span className="font-mono text-[11px] text-muted">{events.length}</span>
+        <span className="font-mono text-2xs text-muted">{events.length}</span>
       </div>
 
       {events.length === 0 ? (
@@ -56,15 +56,15 @@ export function EventList({
                     <p className="truncate text-sm text-foreground">
                       {event.label}
                     </p>
-                    <p className="truncate font-mono text-[11px] text-muted">
+                    <p className="truncate font-mono text-2xs text-muted">
                       {event.zone} · {event.node}
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="font-mono text-[11px] text-muted">
+                    <p className="font-mono text-2xs text-muted">
                       {formatTimeShort(event.ts)}
                     </p>
-                    <p className="font-mono text-[11px] text-muted">
+                    <p className="font-mono text-2xs text-muted">
                       {event.confidence}%
                     </p>
                   </div>

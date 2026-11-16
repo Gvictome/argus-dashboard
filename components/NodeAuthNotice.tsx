@@ -47,7 +47,7 @@ export function NodeAuthNotice({
             const from = window.location.pathname + window.location.search;
             router.push(`/login?from=${encodeURIComponent(from)}`);
           }}
-          className="w-full rounded bg-accent py-2 text-center font-mono text-xs font-semibold tracking-[0.2em] text-background uppercase transition-opacity hover:opacity-90"
+          className="w-full rounded bg-accent py-2 text-center font-mono text-xs font-semibold tracking-label text-accent-foreground uppercase transition-opacity hover:opacity-90"
         >
           Sign in again
         </button>
@@ -60,7 +60,7 @@ export function NodeAuthNotice({
       <p className="font-mono text-xs tracking-widest text-danger uppercase">
         {nodeName} rejected the dashboard&apos;s sign-in
       </p>
-      <p className="font-mono text-[11px] leading-relaxed text-muted">
+      <p className="font-mono text-2xs leading-relaxed text-muted">
         Check this node&apos;s login in .env.local (ARGUS_NODE_USER /
         ARGUS_NODE_PASSWORD, or its entry in ARGUS_NODE_CREDS). After a
         rejection the server waits about 2 minutes before trying the node
@@ -69,7 +69,7 @@ export function NodeAuthNotice({
       <button
         type="button"
         onClick={onRetry}
-        className="w-full rounded border border-border py-2 font-mono text-xs tracking-[0.2em] text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
+        className="w-full rounded border border-border py-2 font-mono text-xs tracking-label text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
       >
         Retry
       </button>

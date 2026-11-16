@@ -39,23 +39,23 @@ export function NodeCard({
 
   return (
     <div
-      className={`flex flex-col rounded border bg-surface ${
-        offline ? "border-danger/40" : isSelected ? "border-accent/60" : "border-border"
+      className={`flex flex-col rounded-lg border bg-surface shadow-sm ${
+        offline ? "border-dashed border-border-strong" : isSelected ? "border-accent/60" : "border-border"
       }`}
     >
       <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
         <div className="min-w-0">
-          <p className="truncate font-mono text-xs tracking-[0.2em] text-foreground uppercase">
+          <p className="truncate font-mono text-xs tracking-label text-foreground uppercase">
             {node.name}
-            {isSelected && <span className="ml-2 text-[10px] text-accent">viewing</span>}
+            {isSelected && <span className="ml-2 text-3xs text-accent">viewing</span>}
           </p>
-          <p className="truncate font-mono text-[10px] text-muted">
+          <p className="truncate font-mono text-3xs text-muted">
             {node.nodeName !== node.name && <span>{node.nodeName} · </span>}
             {node.url}
           </p>
           {node.online && (
             <p
-              className={`truncate font-mono text-[10px] uppercase tracking-wider ${
+              className={`truncate font-mono text-3xs uppercase tracking-wider ${
                 AUTH_NOTE[node.auth].bad ? "text-danger" : "text-muted"
               }`}
             >
@@ -64,11 +64,11 @@ export function NodeCard({
           )}
         </div>
         <span
-          className={`flex shrink-0 items-center gap-2 font-mono text-[11px] uppercase ${
-            offline ? "text-danger" : "text-muted"
+          className={`flex shrink-0 items-center gap-2 font-mono text-2xs uppercase ${
+            offline ? "text-offline" : "text-success"
           }`}
         >
-          <StatusDot tone={offline ? "down" : "live"} pulse={!offline} />
+          <StatusDot tone={offline ? "offline" : "live"} pulse={!offline} />
           {offline ? "offline" : "online"}
         </span>
       </div>
@@ -90,7 +90,7 @@ export function NodeCard({
       </dl>
 
       {node.error && (
-        <p className="px-4 pb-3 font-mono text-[10px] leading-relaxed text-danger/90">
+        <p className="px-4 pb-3 font-mono text-3xs leading-relaxed text-danger/90">
           {node.error}
         </p>
       )}
@@ -98,7 +98,7 @@ export function NodeCard({
       <button
         onClick={() => onOpen(node.id)}
         disabled={offline}
-        className="mt-auto border-t border-border px-4 py-3 font-mono text-[11px] tracking-[0.2em] text-muted uppercase transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        className="mt-auto border-t border-border px-4 py-3 font-mono text-2xs tracking-label text-muted uppercase transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
       >
         {offline ? "Unavailable" : "Open this node"}
       </button>
@@ -116,7 +116,7 @@ function CardMedia({ node, refreshTick }: { node: NodeSummary; refreshTick: numb
   else if (failedTick === refreshTick) message = "Snapshot unavailable";
 
   return (
-    <div className="relative aspect-video w-full bg-black">
+    <div className="relative aspect-video w-full bg-black scheme-dark">
       {node.online && node.camera === "live" && failedTick !== refreshTick && (
         <img
           src={nodeSnapshotUrl(node.id, refreshTick)}
@@ -128,8 +128,8 @@ function CardMedia({ node, refreshTick }: { node: NodeSummary; refreshTick: numb
       {message && (
         <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
           <p
-            className={`font-mono text-[11px] tracking-widest uppercase ${
-              node.online ? "text-muted" : "text-danger"
+            className={`font-mono text-2xs tracking-widest uppercase ${
+              node.online ? "text-muted" : "text-offline"
             }`}
           >
             {message}
@@ -143,7 +143,7 @@ function CardMedia({ node, refreshTick }: { node: NodeSummary; refreshTick: numb
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <dt className="font-mono text-[10px] tracking-wider text-muted uppercase">{label}</dt>
+      <dt className="font-mono text-3xs tracking-wider text-muted uppercase">{label}</dt>
       <dd className="truncate font-mono text-sm text-foreground">{value}</dd>
     </div>
   );

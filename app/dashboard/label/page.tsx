@@ -36,7 +36,7 @@ export default function LabelPage() {
           <div
             role="tablist"
             aria-label="Node to label"
-            className="mb-4 flex w-fit items-center gap-1 rounded border border-border bg-surface p-1"
+            className="mb-4 flex w-fit items-center gap-1 rounded-lg border border-border bg-surface shadow-sm p-1"
           >
             {nodes.map((node) => (
               <button
@@ -45,7 +45,7 @@ export default function LabelPage() {
                 role="tab"
                 aria-selected={node.id === activeId}
                 onClick={() => setPicked(node.id)}
-                className={`rounded px-4 py-2 font-mono text-xs tracking-[0.2em] uppercase transition-colors ${
+                className={`rounded px-4 py-2 font-mono text-xs tracking-label uppercase transition-colors ${
                   node.id === activeId
                     ? "bg-surface-raised text-foreground"
                     : "text-muted hover:text-foreground"

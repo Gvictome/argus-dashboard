@@ -50,7 +50,7 @@ export function BulkGrid({
 
   if (page.length === 0) {
     return (
-      <p className="rounded border border-border bg-surface p-8 text-center font-mono text-xs text-muted">
+      <p className="rounded-lg border border-border bg-surface shadow-sm p-8 text-center font-mono text-xs text-muted">
         Nothing left that can be bulk-confirmed. Events with a hint are
         reviewed one at a time.
       </p>
@@ -64,9 +64,9 @@ export function BulkGrid({
   const ready = armed && allSeen && chosen.length > 0;
 
   return (
-    <section className="rounded border border-border bg-surface p-4">
+    <section className="rounded-lg border border-border bg-surface shadow-sm p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <p className="font-mono text-[11px] text-muted">
+        <p className="font-mono text-2xs text-muted">
           Look at each picture. Untick any that are not plainly routine, or
           whose class is wrong. Those stay unlabelled.
         </p>
@@ -74,7 +74,7 @@ export function BulkGrid({
           type="button"
           disabled={!ready}
           onClick={() => onConfirm(chosen)}
-          className="rounded bg-accent px-4 py-2 font-mono text-xs font-semibold tracking-[0.15em] text-background uppercase transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded bg-accent px-4 py-2 font-mono text-xs font-semibold tracking-label text-accent-foreground uppercase transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
         >
           {ready
             ? `Confirm ${chosen.length} as routine`
@@ -101,7 +101,7 @@ export function BulkGrid({
                   onSeen={() => setSeen((old) => new Set(old).add(item.n))}
                   onFailed={() => setFailed((old) => new Set(old).add(item.n))}
                 />
-                <span className="flex items-center justify-between gap-2 px-1 pt-1 font-mono text-[11px] text-foreground">
+                <span className="flex items-center justify-between gap-2 px-1 pt-1 font-mono text-2xs text-foreground">
                   <span>
                     {item.features.class}{" "}
                     <span className="text-muted">#{item.n}</span>

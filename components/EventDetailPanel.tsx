@@ -13,7 +13,7 @@ export function EventDetailPanel({
 }) {
   if (!event) {
     return (
-      <div className="flex h-full items-center justify-center rounded border border-border bg-surface p-6">
+      <div className="flex h-full items-center justify-center rounded-lg border border-border bg-surface shadow-sm p-6">
         <p className="font-mono text-xs tracking-widest text-muted uppercase">
           Select an event
         </p>
@@ -24,10 +24,10 @@ export function EventDetailPanel({
   const isAlert = event.status === "stranger";
 
   return (
-    <div className="flex h-full flex-col rounded border border-border bg-surface p-6">
+    <div className="flex h-full flex-col rounded-lg border border-border bg-surface shadow-sm p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-[11px] tracking-widest text-muted uppercase">
+          <p className="font-mono text-2xs tracking-widest text-muted uppercase">
             {event.cls}
           </p>
           <h2 className="mt-1 text-lg font-medium text-foreground">
@@ -35,7 +35,7 @@ export function EventDetailPanel({
           </h2>
         </div>
         {isAlert && (
-          <span className="shrink-0 rounded border border-danger/40 bg-danger/10 px-2 py-1 font-mono text-[10px] tracking-widest text-danger uppercase">
+          <span className="shrink-0 rounded border border-danger/40 bg-danger/10 px-2 py-1 font-mono text-3xs tracking-widest text-danger uppercase">
             Unverified
           </span>
         )}
@@ -111,14 +111,14 @@ function EventActions({
             <button
               onClick={handleConfirm}
               disabled={submitting}
-              className="flex-1 rounded bg-accent py-2 font-mono text-xs font-semibold tracking-[0.2em] text-background uppercase transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="flex-1 rounded bg-accent py-2 font-mono text-xs font-semibold tracking-label text-accent-foreground uppercase transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               Confirm unusual
             </button>
             <button
               onClick={() => setCorrecting(true)}
               disabled={submitting}
-              className="flex-1 rounded border border-border py-2 font-mono text-xs tracking-[0.2em] text-muted uppercase transition-colors hover:border-accent hover:text-foreground disabled:opacity-50"
+              className="flex-1 rounded border border-border py-2 font-mono text-xs tracking-label text-muted uppercase transition-colors hover:border-accent hover:text-foreground disabled:opacity-50"
             >
               Label
             </button>
@@ -130,20 +130,20 @@ function EventActions({
               value={correctedLabel}
               onChange={(e) => setCorrectedLabel(e.target.value)}
               placeholder="What is it? e.g. person, delivery, cat"
-              className="w-full rounded border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-foreground outline-none focus:border-accent"
+              className="w-full rounded border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/25"
             />
             <div className="flex gap-2">
               <button
                 onClick={handleCorrectSubmit}
                 disabled={submitting}
-                className="flex-1 rounded bg-accent py-2 font-mono text-xs font-semibold tracking-[0.2em] text-background uppercase transition-opacity hover:opacity-90 disabled:opacity-50"
+                className="flex-1 rounded bg-accent py-2 font-mono text-xs font-semibold tracking-label text-accent-foreground uppercase transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 Submit
               </button>
               <button
                 onClick={() => setCorrecting(false)}
                 disabled={submitting}
-                className="rounded border border-border px-4 py-2 font-mono text-xs tracking-[0.2em] text-muted uppercase transition-colors hover:text-foreground"
+                className="rounded border border-border px-4 py-2 font-mono text-xs tracking-label text-muted uppercase transition-colors hover:text-foreground"
               >
                 Cancel
               </button>

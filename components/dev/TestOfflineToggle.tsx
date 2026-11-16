@@ -14,7 +14,7 @@ export function TestOfflineToggle({
   return (
     <button
       onClick={() => onToggle(!active)}
-      className={`shrink-0 rounded border px-3 py-2 font-mono text-[11px] tracking-wider uppercase transition-colors ${
+      className={`shrink-0 rounded border px-3 py-2 font-mono text-2xs tracking-wider uppercase transition-colors ${
         active
           ? "border-danger/50 bg-danger/10 text-danger"
           : "border-border text-muted hover:border-accent hover:text-foreground"

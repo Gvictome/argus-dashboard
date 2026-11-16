@@ -63,7 +63,7 @@ export function LiveFeed({
       className={
         compact
           ? "flex flex-col"
-          : "flex flex-col rounded border border-border bg-surface"
+          : "flex flex-col rounded-lg border border-border bg-surface shadow-sm"
       }
     >
       <div
@@ -71,10 +71,10 @@ export function LiveFeed({
           compact ? "py-2" : "py-3"
         }`}
       >
-        <p className="font-mono text-[11px] tracking-widest text-muted uppercase">
+        <p className="font-mono text-2xs tracking-widest text-muted uppercase">
           Live camera
         </p>
-        <span className="flex items-center gap-2 font-mono text-[11px] text-muted uppercase">
+        <span className="flex items-center gap-2 font-mono text-2xs text-muted uppercase">
           <StatusDot
             tone={state === "streaming" ? "live" : state === "error" ? "down" : "idle"}
             pulse={state === "streaming"}
@@ -83,7 +83,7 @@ export function LiveFeed({
         </span>
       </div>
 
-      <div className="relative bg-black">
+      <div className="relative bg-black scheme-dark">
         <div className={`aspect-video w-full ${compact ? "max-h-[42vh]" : ""}`}>
           {state !== "error" && (
             <img
@@ -113,14 +113,14 @@ export function LiveFeed({
             <p className="font-mono text-xs tracking-widest text-danger uppercase">
               Camera stream unavailable
             </p>
-            <p className="max-w-sm font-mono text-[11px] leading-relaxed text-muted">
+            <p className="max-w-sm font-mono text-2xs leading-relaxed text-muted">
               The node is not serving /api/camera/stream. The camera may be
               uninitialised, in use by another process, or the node may be
               unreachable.
             </p>
             <button
               onClick={retry}
-              className="rounded border border-border px-3 py-2 font-mono text-[11px] tracking-[0.2em] text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
+              className="rounded border border-border px-3 py-2 font-mono text-2xs tracking-label text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
             >
               Retry
             </button>
@@ -129,7 +129,7 @@ export function LiveFeed({
       </div>
 
       {!compact && (
-        <p className="border-t border-border px-4 py-3 font-mono text-[11px] leading-relaxed text-muted">
+        <p className="border-t border-border px-4 py-3 font-mono text-2xs leading-relaxed text-muted">
           Frames are served by the node on the local network and proxied with
           your session token. Nothing is recorded or forwarded off the
           property by this page.

@@ -28,7 +28,7 @@ function LastRound({ node }: { node: RoundNodeState }) {
   }
   return (
     <div className="flex flex-col gap-0.5">
-      <span className={r.accepted ? "text-accent" : ""} style={r.accepted ? undefined : { color: AMBER }}>
+      <span className={r.accepted ? "text-success" : ""} style={r.accepted ? undefined : { color: AMBER }}>
         {r.accepted ? "✓ accepted" : "✕ rejected"}
         {r.at ? <span className="text-muted"> · {formatEpoch(r.at)}</span> : null}
         {r.val_samples !== undefined && <span className="text-muted"> · {r.val_samples} val</span>}
@@ -92,7 +92,7 @@ export function RoundControl() {
   const job = data?.job.running ?? data?.job.last ?? null;
 
   return (
-    <section className="rounded border border-border bg-surface p-4 font-mono text-xs">
+    <section className="rounded-lg border border-border bg-surface shadow-sm p-4 font-mono text-xs">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-sans text-sm font-medium text-foreground">Federated round</h2>
         <div className="flex flex-wrap items-center gap-2">
@@ -138,7 +138,7 @@ export function RoundControl() {
         </div>
       </div>
 
-      <p className="mt-2 text-[11px] text-muted">
+      <p className="mt-2 text-2xs text-muted">
         Same as <code>bash ~/ARGUS/run-round.sh</code>: human-reviewed labels only, {min} per node,
         aggregator {data?.aggregator.address ?? "on Node C"}. The buttons open a Git Bash window on this PC.
         {data && !data.canLaunch && " They work only from the console PC (localhost)."}
@@ -159,14 +159,14 @@ export function RoundControl() {
             ) : launching ? (
               <span style={{ color: AMBER }}>● Opening the Git Bash window…</span>
             ) : ready ? (
-              <span className="text-accent">✓ Every node has {min}+ human labels. Ready when Gio says go.</span>
+              <span className="text-success">✓ Every node has {min}+ human labels. Ready when Gio says go.</span>
             ) : (
               <span className="text-danger">✕ Not every node is online with {min}+ human labels.</span>
             )}
             <span className="text-muted">
               {" "}· Aggregator {data.aggregator.address}:{" "}
               {data.aggregator.listening ? (
-                <span className="text-accent">listening</span>
+                <span className="text-success">listening</span>
               ) : (
                 "not running (the round starts it)"
               )}
@@ -191,7 +191,7 @@ export function RoundControl() {
                     <td className={TD}>{node.name}</td>
                     <td className={TD}>
                       {node.online ? (
-                        <span className={(node.reviewed ?? 0) >= min ? "text-accent" : "text-danger"}>
+                        <span className={(node.reviewed ?? 0) >= min ? "text-success" : "text-danger"}>
                           {node.reviewed ?? "?"} / {min}
                         </span>
                       ) : (
@@ -231,7 +231,7 @@ export function RoundControl() {
                 {job.finishedAt && (
                   <>
                     , finished {new Date(job.finishedAt).toLocaleTimeString()},{" "}
-                    <span className={job.exitCode === 0 ? "text-accent" : "text-danger"}>
+                    <span className={job.exitCode === 0 ? "text-success" : "text-danger"}>
                       exit {job.exitCode}
                     </span>
                   </>
@@ -239,7 +239,7 @@ export function RoundControl() {
                 {job.log && <> · log {job.log}</>}
               </p>
               {data.job.tail.length > 0 && (
-                <pre className="mt-1 max-h-56 overflow-auto whitespace-pre-wrap rounded bg-background p-2 text-[11px] text-muted">
+                <pre className="mt-1 max-h-56 overflow-auto whitespace-pre-wrap rounded bg-surface-raised p-2 text-2xs text-muted">
                   {data.job.tail.join("\n")}
                 </pre>
               )}

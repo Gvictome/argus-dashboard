@@ -113,9 +113,9 @@ export function StagingPanel({ nodes }: { nodes: NodeOption[] }) {
   };
 
   return (
-    <section className="mb-6 rounded border border-border bg-surface p-4">
+    <section className="mb-6 rounded-lg border border-border bg-surface shadow-sm p-4">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-mono text-xs tracking-[0.25em] text-muted uppercase">Staging mode</h2>
+        <h2 className="font-mono text-xs tracking-label text-muted uppercase">Staging mode</h2>
         <p className="text-xs text-muted">
           Act out suspicious behaviour while it is on: every event the node records is labelled
           anomaly (provenance: staged). Auto-stops after 30 min.

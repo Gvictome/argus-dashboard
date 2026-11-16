@@ -1,7 +1,8 @@
 const TONE_CLASSES = {
-  live: "bg-accent shadow-[0_0_8px_var(--accent)]",
+  live: "bg-success",
   idle: "bg-muted",
-  down: "bg-danger shadow-[0_0_8px_var(--danger)]",
+  offline: "bg-offline",
+  down: "bg-danger",
 } as const;
 
 export function StatusDot({

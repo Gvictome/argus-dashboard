@@ -28,7 +28,7 @@ export function EventMedia({
 
   if (event.clip && !clipFailed) {
     return (
-      <div className="overflow-hidden rounded border border-border bg-black">
+      <div className="overflow-hidden rounded-lg border border-border bg-black scheme-dark">
         <video
           src={eventClipUrl(event.id)}
           poster={eventSnapshotUrl(event.id)}
@@ -38,7 +38,7 @@ export function EventMedia({
           className="aspect-video w-full object-contain"
           onError={() => setClipFailed(true)}
         />
-        <p className="border-t border-border px-4 py-2 font-mono text-[11px] tracking-widest text-danger uppercase">
+        <p className="border-t border-border px-4 py-2 font-mono text-2xs tracking-widest text-danger uppercase">
           Priority 1 · clip
         </p>
       </div>
@@ -52,7 +52,7 @@ export function EventMedia({
   if (stillFailed && !showNoClipNote) return null;
 
   return (
-    <div className="overflow-hidden rounded border border-border bg-black">
+    <div className="overflow-hidden rounded-lg border border-border bg-black scheme-dark">
       {stillFailed ? (
         <div className="flex aspect-video w-full items-center justify-center">
           <p className="font-mono text-xs tracking-widest text-muted uppercase">
@@ -68,7 +68,7 @@ export function EventMedia({
         />
       )}
       {showNoClipNote && (
-        <p className="border-t border-border px-4 py-2 font-mono text-[11px] tracking-widest text-muted uppercase">
+        <p className="border-t border-border px-4 py-2 font-mono text-2xs tracking-widest text-muted uppercase">
           {note}
         </p>
       )}

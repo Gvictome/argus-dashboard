@@ -27,12 +27,13 @@ export function formatEpoch(seconds: number): string {
 }
 
 const WARN_C = 70;
-export const AMBER = "#e3b341";
+/** Warning tone (amber), as a CSS colour for inline styles and SVG. */
+export const AMBER = "var(--warning)";
 
 /** SoC temperature colour: over the node's soft limit is the alarm case. */
 export function tempColor(temp: number | null | undefined, soft: number): string {
   if (temp == null) return "var(--muted)";
   if (temp >= soft) return "var(--danger)";
   if (temp >= WARN_C) return AMBER;
-  return "var(--accent)";
+  return "var(--success)";
 }

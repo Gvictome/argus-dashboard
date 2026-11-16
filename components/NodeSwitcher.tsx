@@ -14,7 +14,7 @@ export function NodeSwitcher() {
 
   if (nodes.length === 1) {
     return (
-      <span className="rounded border border-border bg-surface px-3 py-2 font-mono text-xs tracking-[0.2em] text-muted uppercase">
+      <span className="rounded border border-border bg-surface px-3 py-2 font-mono text-xs tracking-label text-muted uppercase">
         {nodes[0].name}
       </span>
     );
@@ -26,7 +26,7 @@ export function NodeSwitcher() {
     <div
       role="tablist"
       aria-label="Node"
-      className="flex flex-wrap items-center gap-1 rounded border border-border bg-surface p-1"
+      className="flex flex-wrap items-center gap-1 rounded-lg border border-border bg-surface shadow-sm p-1"
     >
       {nodes.map((node) => {
         const isActive = node.id === current;
@@ -40,7 +40,7 @@ export function NodeSwitcher() {
             onClick={() => {
               if (!isActive) void select(node.id);
             }}
-            className={`rounded px-3 py-2 font-mono text-xs tracking-[0.2em] uppercase transition-colors disabled:opacity-50 ${
+            className={`rounded px-3 py-2 font-mono text-xs tracking-label uppercase transition-colors disabled:opacity-50 ${
               isActive
                 ? "bg-accent/15 text-accent"
                 : "text-muted hover:text-foreground"

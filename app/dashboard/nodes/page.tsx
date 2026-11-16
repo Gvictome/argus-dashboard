@@ -73,7 +73,7 @@ export default function AllNodesPage() {
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-1 flex-col px-6 py-6">
       <DashboardNav title="All nodes" />
 
-      <p className="mb-4 font-mono text-[11px] tracking-widest text-muted uppercase">
+      <p className="mb-4 font-mono text-2xs tracking-widest text-muted uppercase">
         {nodes ? `${onlineCount} of ${nodes.length} nodes online` : "Checking nodes…"}
       </p>
 

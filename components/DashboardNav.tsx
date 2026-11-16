@@ -38,7 +38,7 @@ export function DashboardNav({
       <div>
         <Link
           href="/dashboard"
-          className="font-mono text-xs tracking-[0.3em] text-muted uppercase transition-colors hover:text-accent"
+          className="font-mono text-xs tracking-brand text-muted uppercase transition-colors hover:text-accent"
         >
           ARGUS
         </Link>
@@ -60,7 +60,7 @@ export function DashboardNav({
                 key={link.href}
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex items-center gap-2 rounded px-3 py-2 font-mono text-xs tracking-[0.2em] uppercase transition-colors ${
+                className={`flex items-center gap-2 rounded px-3 py-2 font-mono text-xs tracking-label uppercase transition-colors ${
                   isActive
                     ? "bg-surface-raised text-foreground"
                     : "text-muted hover:text-foreground"
@@ -68,7 +68,7 @@ export function DashboardNav({
               >
                 {link.label}
                 {showBadge && (
-                  <span className="rounded-full bg-danger/15 px-1.5 py-0.5 text-[10px] leading-none text-danger">
+                  <span className="rounded-full bg-danger/15 px-1.5 py-0.5 text-3xs leading-none text-danger">
                     {alertCount}
                   </span>
                 )}
@@ -81,7 +81,7 @@ export function DashboardNav({
 
         <button
           onClick={() => logout().then(() => router.replace("/login"))}
-          className="rounded border border-border px-3 py-2 font-mono text-xs tracking-[0.2em] text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
+          className="rounded border border-border px-3 py-2 font-mono text-xs tracking-label text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
         >
           Log out
         </button>

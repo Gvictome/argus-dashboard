@@ -148,7 +148,7 @@ function LiveView() {
           <EventDetailPanel event={selectedEvent} onLabel={applyLabel} />
           <Link
             href="/dashboard/alerts"
-            className="rounded border border-border bg-surface px-4 py-3 text-center font-mono text-[11px] tracking-[0.2em] text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
+            className="rounded border border-border bg-surface px-4 py-3 text-center font-mono text-2xs tracking-label text-muted uppercase transition-colors hover:border-accent hover:text-foreground"
           >
             {alertCount > 0 ? `Review ${alertCount} alerts` : "Alerts feed"}
           </Link>

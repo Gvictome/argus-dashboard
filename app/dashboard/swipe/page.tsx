@@ -49,14 +49,14 @@ export default function SwipePage() {
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pt-3 pb-8">
       <header className="mb-3 flex items-center justify-between gap-2">
         <div>
-          <Link href="/dashboard" className="font-mono text-[10px] tracking-[0.3em] text-muted uppercase hover:text-accent">
+          <Link href="/dashboard" className="font-mono text-3xs tracking-brand text-muted uppercase hover:text-accent">
             ARGUS ‹ console
           </Link>
           <h1 className="text-lg leading-tight font-semibold text-foreground">Swipe to label</h1>
         </div>
         <div className="flex items-center gap-2">
           {reviewer && (
-            <button type="button" onClick={() => setReviewer("")} className="rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted" title="Change reviewer">
+            <button type="button" onClick={() => setReviewer("")} className="rounded-full border border-border px-3 py-1 font-mono text-2xs text-muted" title="Change reviewer">
               {reviewer}
             </button>
           )}
@@ -78,9 +78,9 @@ export default function SwipePage() {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             autoFocus
-            className="rounded-lg border border-border bg-surface-raised px-3 py-3 text-base text-foreground outline-none focus:border-accent"
+            className="rounded-lg border border-border bg-surface-raised px-3 py-3 text-base text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent/25"
           />
-          <button type="submit" className="rounded-full bg-accent py-3 font-semibold text-black">
+          <button type="submit" className="rounded-full bg-accent py-3 font-semibold text-accent-foreground">
             Start swiping
           </button>
         </form>
